@@ -49,6 +49,8 @@ class MainActivity : AppCompatActivity() {
     private var targetCount = 0
     private val scannedCodes = mutableSetOf<String>()
 
+    private var isScanningFinished = false // Add this flag
+
     companion object {
         private const val CAMERA_PERMISSION_REQUEST_CODE = 10
     }
@@ -112,6 +114,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startScanningLayout() {
         scannedCodes.clear()
+        isScanningFinished = false // Reset here
         updateProgressText()
 
         layoutSetup.visibility = View.GONE
@@ -135,7 +138,7 @@ class MainActivity : AppCompatActivity() {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, QRCodeAnalyzer { qrText ->
+                    it.setAnalyzer(cameraExecutor, QRCodeAnalyzer(targetCount) { qrText ->
                         handleQrCodeFound(qrText)
                     })
                 }
@@ -172,6 +175,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun finishScanning() {
+        if (isScanningFinished) return // Prevent multiple triggers
+        isScanningFinished = true
+
         cameraProvider?.unbindAll() // Stop the camera
         showResultsLayout()
     }
