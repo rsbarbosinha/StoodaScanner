@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.stoodascanner"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -49,6 +49,6 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:${camerax_version}")
     implementation("androidx.camera:camera-view:${camerax_version}")
 
-    // ZXing
-    implementation("com.google.zxing:core:3.5.3")
+    // ADD: ZXing-C++ Android Wrapper
+    implementation("io.github.zxing-cpp:android:3.0.2")
 }
