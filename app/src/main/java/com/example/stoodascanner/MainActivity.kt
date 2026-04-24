@@ -1,10 +1,7 @@
 package com.example.stoodascanner
 
-import androidx.activity.enableEdgeToEdge
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -12,6 +9,8 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -22,7 +21,9 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -31,6 +32,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -45,11 +47,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var cameraExecutor: ExecutorService
     private var cameraProvider: ProcessCameraProvider? = null
+    private var cameraControl: CameraControl? = null
 
     private var targetCount = 0
     private val scannedCodes = java.util.TreeSet<String>()
 
-    private var isScanningFinished = false // Add this flag
+    private var isScanningFinished = false
 
     companion object {
         private const val CAMERA_PERMISSION_REQUEST_CODE = 10
@@ -114,7 +117,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startScanningLayout() {
         scannedCodes.clear()
-        isScanningFinished = false // Reset here
+        isScanningFinished = false
         updateProgressText()
 
         layoutSetup.visibility = View.GONE
@@ -124,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         startCamera()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
@@ -147,7 +151,34 @@ class MainActivity : AppCompatActivity() {
 
             try {
                 cameraProvider?.unbindAll()
-                cameraProvider?.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
+                val camera = cameraProvider?.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
+                cameraControl = camera?.cameraControl
+
+                // Pinch to zoom
+                val scaleGestureDetector = ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                    override fun onScale(detector: ScaleGestureDetector): Boolean {
+                        val zoomState = camera?.cameraInfo?.zoomState?.value
+                        val currentZoomRatio = zoomState?.zoomRatio ?: 1f
+                        cameraControl?.setZoomRatio(currentZoomRatio * detector.scaleFactor)
+                        return true
+                    }
+                })
+
+                viewFinder.setOnTouchListener { _, event ->
+                    scaleGestureDetector.onTouchEvent(event)
+
+                    if (event.action == MotionEvent.ACTION_UP) {
+                        // Tap to focus
+                        val factory = viewFinder.meteringPointFactory
+                        val point = factory.createPoint(event.x, event.y)
+                        val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF)
+                            .setAutoCancelDuration(3, TimeUnit.SECONDS)
+                            .build()
+                        cameraControl?.startFocusAndMetering(action)
+                    }
+                    true
+                }
+
             } catch (exc: Exception) {
                 Toast.makeText(this, "Failed to start camera", Toast.LENGTH_SHORT).show()
             }
@@ -188,10 +219,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun finishScanning() {
-        if (isScanningFinished) return // Prevent multiple triggers
+        if (isScanningFinished) return
         isScanningFinished = true
 
-        cameraProvider?.unbindAll() // Stop the camera
+        cameraProvider?.unbindAll()
         showResultsLayout()
     }
 
@@ -200,7 +231,6 @@ class MainActivity : AppCompatActivity() {
         layoutScanning.visibility = View.GONE
         layoutResults.visibility = View.VISIBLE
 
-        // Populate ListView with results
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, scannedCodes.toList())
         listViewResults.adapter = adapter
     }
