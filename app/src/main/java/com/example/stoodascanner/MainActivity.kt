@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     private var cameraProvider: ProcessCameraProvider? = null
 
     private var targetCount = 0
-    private val scannedCodes = mutableSetOf<String>()
+    private val scannedCodes = java.util.TreeSet<String>()
 
     private var isScanningFinished = false // Add this flag
 
