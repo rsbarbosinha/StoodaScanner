@@ -2,7 +2,6 @@ package com.example.stoodascanner
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -179,7 +178,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
 
-            } catch (exc: Exception) {
+            } catch (_: Exception) {
                 Toast.makeText(this, "Failed to start camera", Toast.LENGTH_SHORT).show()
             }
 
@@ -214,6 +213,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateProgressText() {
         tvProgress.text = "Scanned: ${scannedCodes.size} / $targetCount"
     }
@@ -245,11 +245,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun triggerHapticFeedback() {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vibratorManager.defaultVibrator
         } else {
             @Suppress("DEPRECATION")
-            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
