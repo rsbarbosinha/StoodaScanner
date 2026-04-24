@@ -156,6 +156,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleQrCodeFound(qrText: String) {
+        // Validate: must be exactly 3 digits
+        if (!qrText.matches(Regex("\\d{3}"))) {
+            return
+        }
+
+        // Extract values
+        val firstTwo = qrText.substring(0, 2).toInt()
+        val lastDigit = qrText.substring(2, 3).toInt()
+
+        // Validate ranges
+        if (firstTwo !in 1..64 || lastDigit !in 0..5) {
+            return
+        }
         // Run on UI thread since Analyzer runs on a background thread
         runOnUiThread {
             // .add() returns true if the item was not already in the set (meaning it's unique)
