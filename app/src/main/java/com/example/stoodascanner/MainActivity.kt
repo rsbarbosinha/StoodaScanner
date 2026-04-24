@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private var cameraProvider: ProcessCameraProvider? = null
 
+    private lateinit var overlayView: QrCodeOverlayView
+
     private var targetCount = 0
     private val scannedCodes = mutableSetOf<String>()
 
@@ -63,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         layoutSetup = findViewById(R.id.layoutSetup)
         layoutScanning = findViewById(R.id.layoutScanning)
         layoutResults = findViewById(R.id.layoutResults)
+        overlayView = findViewById(R.id.overlayView)
 
         editQrCount = findViewById(R.id.editQrCount)
         tvProgress = findViewById(R.id.tvProgress)
@@ -117,6 +120,8 @@ class MainActivity : AppCompatActivity() {
         isScanningFinished = false // Reset here
         updateProgressText()
 
+        overlayView.clear()
+
         layoutSetup.visibility = View.GONE
         layoutResults.visibility = View.GONE
         layoutScanning.visibility = View.VISIBLE
@@ -138,8 +143,8 @@ class MainActivity : AppCompatActivity() {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, QRCodeAnalyzer(targetCount) { qrText ->
-                        handleQrCodeFound(qrText)
+                    it.setAnalyzer(cameraExecutor, QRCodeAnalyzer(targetCount) { qrText, imageWidth, imageHeight, rawX, rawY ->
+                        handleQrCodeFound(qrText, imageWidth, imageHeight, rawX, rawY)
                     })
                 }
 
@@ -155,11 +160,20 @@ class MainActivity : AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun handleQrCodeFound(qrText: String) {
-        // Run on UI thread since Analyzer runs on a background thread
+    private fun handleQrCodeFound(qrText: String, imageWidth: Int, imageHeight: Int, rawX: Int, rawY: Int) {
         runOnUiThread {
-            // .add() returns true if the item was not already in the set (meaning it's unique)
             if (scannedCodes.add(qrText)) {
+
+                // Calculate scale factors. Note: If in portrait, swap imageWidth and imageHeight
+                val scaleX = viewFinder.width.toFloat() / imageHeight.toFloat()
+                val scaleY = viewFinder.height.toFloat() / imageWidth.toFloat()
+
+                // Apply scaling to find the exact screen coordinate
+                val screenX = rawX * scaleX
+                val screenY = rawY * scaleY
+
+                overlayView.addPoint(screenX, screenY)
+
                 triggerHapticFeedback()
                 updateProgressText()
 

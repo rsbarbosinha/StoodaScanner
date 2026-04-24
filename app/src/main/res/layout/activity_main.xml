@@ -47,6 +47,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <com.example.stoodascanner.QrCodeOverlayView
+            android:id="@+id/overlayView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="4dp" />
+
         <TextView
             android:id="@+id/tvProgress"
             android:layout_width="wrap_content"
