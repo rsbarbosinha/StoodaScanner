@@ -34,6 +34,13 @@
             android:layout_height="wrap_content"
             android:text="Start Scan"
             android:layout_marginTop="24dp"/>
+
+        <Button
+            android:id="@+id/btnGenerateQr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate QR PDF"
+            android:layout_marginTop="8dp"/>
     </LinearLayout>
 
     <RelativeLayout

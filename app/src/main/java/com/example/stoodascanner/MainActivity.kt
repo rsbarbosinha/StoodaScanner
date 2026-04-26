@@ -11,6 +11,7 @@ import android.os.VibratorManager
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -72,11 +73,13 @@ class MainActivity : AppCompatActivity() {
         listViewResults = findViewById(R.id.listViewResults)
 
         val btnStartScan = findViewById<Button>(R.id.btnStartScan)
+        val btnGenerateQr = findViewById<Button>(R.id.btnGenerateQr)
         val btnRestart = findViewById<Button>(R.id.btnRestart)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         btnStartScan.setOnClickListener {
+            hideKeyboard()
             val input = editQrCount.text.toString()
             val count = input.toIntOrNull()
 
@@ -86,6 +89,10 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Please enter a number between 1 and 64", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        btnGenerateQr.setOnClickListener {
+            QRGenerator(this).generateStoodaPdf()
         }
 
         btnRestart.setOnClickListener {
@@ -187,16 +194,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleQrCodeFound(qrText: String) {
         // Validate: must be exactly 3 digits
-        if (!qrText.matches(Regex("\\d{3}"))) {
+        if (!qrText.matches(Regex("\\d{4}"))) {
             return
         }
 
         // Extract values
         val firstTwo = qrText.substring(0, 2).toInt()
-        val lastDigit = qrText.substring(2, 3).toInt()
+        val firstDigit = qrText.substring(0, 1).toInt()
+        val secondDigit = qrText.substring(1, 2).toInt()
+        val thirdDigit = qrText.substring(2, 3).toInt()
+        val forthDigit = qrText.substring(3, 4).toInt()
 
         // Validate ranges
-        if (firstTwo !in 1..64 || lastDigit !in 0..5) {
+        if (firstTwo !in 0..63 || thirdDigit !in 0..5 ||
+            forthDigit != (firstDigit+secondDigit+thirdDigit) % 10) {
             return
         }
         // Run on UI thread since Analyzer runs on a background thread
@@ -231,7 +242,9 @@ class MainActivity : AppCompatActivity() {
         layoutScanning.visibility = View.GONE
         layoutResults.visibility = View.VISIBLE
 
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, scannedCodes.toList())
+        val decoder = QRDecoder()
+        val decodedList = scannedCodes.map { decoder.decode(it) }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, decodedList)
         listViewResults.adapter = adapter
     }
 
@@ -241,6 +254,11 @@ class MainActivity : AppCompatActivity() {
         layoutSetup.visibility = View.VISIBLE
         editQrCount.text.clear()
         scannedCodes.clear()
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 
     private fun triggerHapticFeedback() {
