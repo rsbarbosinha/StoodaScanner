@@ -39,11 +39,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var layoutSetup: LinearLayout
     private lateinit var layoutScanning: RelativeLayout
     private lateinit var layoutResults: LinearLayout
+    private lateinit var layoutGraph: LinearLayout
 
     private lateinit var editQrCount: EditText
     private lateinit var tvProgress: TextView
     private lateinit var viewFinder: PreviewView
     private lateinit var listViewResults: ListView
+    private lateinit var graphView: ResultGraphView
 
     private lateinit var cameraExecutor: ExecutorService
     private var cameraProvider: ProcessCameraProvider? = null
@@ -66,15 +68,19 @@ class MainActivity : AppCompatActivity() {
         layoutSetup = findViewById(R.id.layoutSetup)
         layoutScanning = findViewById(R.id.layoutScanning)
         layoutResults = findViewById(R.id.layoutResults)
+        layoutGraph = findViewById(R.id.layoutGraph)
 
         editQrCount = findViewById(R.id.editQrCount)
         tvProgress = findViewById(R.id.tvProgress)
         viewFinder = findViewById(R.id.viewFinder)
         listViewResults = findViewById(R.id.listViewResults)
+        graphView = findViewById(R.id.graphView)
 
         val btnStartScan = findViewById<Button>(R.id.btnStartScan)
         val btnGenerateQr = findViewById<Button>(R.id.btnGenerateQr)
         val btnRestart = findViewById<Button>(R.id.btnRestart)
+        val btnShowGraph = findViewById<Button>(R.id.btnShowGraph)
+        val btnRestartFromGraph = findViewById<Button>(R.id.btnRestartFromGraph)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -96,6 +102,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnRestart.setOnClickListener {
+            showSetupLayout()
+        }
+
+        btnShowGraph.setOnClickListener {
+            showGraphLayout()
+        }
+
+        btnRestartFromGraph.setOnClickListener {
             showSetupLayout()
         }
 
@@ -128,6 +142,7 @@ class MainActivity : AppCompatActivity() {
 
         layoutSetup.visibility = View.GONE
         layoutResults.visibility = View.GONE
+        layoutGraph.visibility = View.GONE
         layoutScanning.visibility = View.VISIBLE
 
         startCamera()
@@ -193,17 +208,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleQrCodeFound(qrText: String) {
-        // Validate: must be exactly 3 digits
+        // Validate: must be exactly 4 digits
         if (!qrText.matches(Regex("\\d{4}"))) {
             return
         }
 
         // Extract values
-        val firstTwo = qrText.substring(0, 2).toInt()
         val firstDigit = qrText.substring(0, 1).toInt()
         val secondDigit = qrText.substring(1, 2).toInt()
         val thirdDigit = qrText.substring(2, 3).toInt()
         val forthDigit = qrText.substring(3, 4).toInt()
+        val firstTwo = qrText.substring(0, 2).toInt()
 
         // Validate ranges
         if (firstTwo !in 0..63 || thirdDigit !in 0..5 ||
@@ -240,6 +255,7 @@ class MainActivity : AppCompatActivity() {
     private fun showResultsLayout() {
         layoutSetup.visibility = View.GONE
         layoutScanning.visibility = View.GONE
+        layoutGraph.visibility = View.GONE
         layoutResults.visibility = View.VISIBLE
 
         val decoder = QRDecoder()
@@ -248,9 +264,30 @@ class MainActivity : AppCompatActivity() {
         listViewResults.adapter = adapter
     }
 
+    private fun showGraphLayout() {
+        layoutSetup.visibility = View.GONE
+        layoutScanning.visibility = View.GONE
+        layoutResults.visibility = View.GONE
+        layoutGraph.visibility = View.VISIBLE
+
+        val decoder = QRDecoder()
+        val counts = mutableMapOf<String, Int>()
+        
+        // Populate counts for A, B, C, D, E, ?
+        scannedCodes.forEach { code ->
+            val decoded = decoder.decode(code)
+            // Extract the "Type" part (the A, B, C etc after the "-")
+            val type = decoded.split(" - ").getOrNull(1) ?: "?"
+            counts[type] = (counts[type] ?: 0) + 1
+        }
+
+        graphView.setData(counts)
+    }
+
     private fun showSetupLayout() {
         layoutScanning.visibility = View.GONE
         layoutResults.visibility = View.GONE
+        layoutGraph.visibility = View.GONE
         layoutSetup.visibility = View.VISIBLE
         editQrCount.text.clear()
         scannedCodes.clear()
