@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var layoutSplash: LinearLayout
     private lateinit var layoutSetup: LinearLayout
     private lateinit var layoutScanning: RelativeLayout
     private lateinit var layoutResults: LinearLayout
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewFinder: PreviewView
     private lateinit var listViewResults: ListView
     private lateinit var graphView: ResultGraphView
+    private lateinit var progressBarSplash: android.widget.ProgressBar
 
     private lateinit var cameraExecutor: ExecutorService
     private var cameraProvider: ProcessCameraProvider? = null
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Initialize Views
+        layoutSplash = findViewById(R.id.layoutSplash)
         layoutSetup = findViewById(R.id.layoutSetup)
         layoutScanning = findViewById(R.id.layoutScanning)
         layoutResults = findViewById(R.id.layoutResults)
@@ -75,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         viewFinder = findViewById(R.id.viewFinder)
         listViewResults = findViewById(R.id.listViewResults)
         graphView = findViewById(R.id.graphView)
+        progressBarSplash = findViewById(R.id.progressBarSplash)
 
         val btnStartScan = findViewById<Button>(R.id.btnStartScan)
         val btnGenerateQr = findViewById<Button>(R.id.btnGenerateQr)
@@ -113,7 +117,35 @@ class MainActivity : AppCompatActivity() {
             showSetupLayout()
         }
 
-        showSetupLayout()
+        showSplashLayout()
+    }
+
+    private fun showSplashLayout() {
+        layoutSetup.visibility = View.GONE
+        layoutScanning.visibility = View.GONE
+        layoutResults.visibility = View.GONE
+        layoutGraph.visibility = View.GONE
+        layoutSplash.visibility = View.VISIBLE
+
+        val totalTime = 3000L
+        val interval = 30L
+        val steps = (totalTime / interval).toInt()
+        
+        var currentStep = 0
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        
+        val runnable = object : Runnable {
+            override fun run() {
+                if (currentStep <= steps) {
+                    progressBarSplash.progress = (currentStep.toFloat() / steps * 100).toInt()
+                    currentStep++
+                    handler.postDelayed(this, interval)
+                } else {
+                    showSetupLayout()
+                }
+            }
+        }
+        handler.post(runnable)
     }
 
     private fun checkPermissionsAndStart() {
@@ -276,7 +308,7 @@ class MainActivity : AppCompatActivity() {
         // Populate counts for A, B, C, D, E, ?
         scannedCodes.forEach { code ->
             val decoded = decoder.decode(code)
-            // Extract the "Type" part (the A, B, C etc after the "-")
+            // Extract the "Type" part (the A, B, C etc. after the "-")
             val type = decoded.split(" - ").getOrNull(1) ?: "?"
             counts[type] = (counts[type] ?: 0) + 1
         }
@@ -285,6 +317,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSetupLayout() {
+        layoutSplash.visibility = View.GONE
         layoutScanning.visibility = View.GONE
         layoutResults.visibility = View.GONE
         layoutGraph.visibility = View.GONE

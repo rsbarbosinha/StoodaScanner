@@ -2,7 +2,6 @@ package com.example.stoodascanner
 
 import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -23,7 +22,11 @@ class QRGenerator(private val context: Context) {
     private val pageWidth = 595
     private val pageHeight = 842
 
-    fun generateStoodaPdf(inputNumbers: List<String> = listOf("0000", "0112", "0224", "0336", "0448", "0550", "0606", "0718", "0820", "0932", "1045", "1157", "1203", "1315", "1427")) {
+    fun generateStoodaPdf(inputNumbers: List<String> = listOf(
+        "0000", "0112", "0224", "0336", "0448", "0550",
+        "0606", "0718", "0820", "0932", "1045", "1157",
+        "1203", "1315", "1427", "1539", "1641", "1753",
+        "1809", "1911", "2024", "2136", "2248", "2350")) {
         Thread {
             try {
                 val pdfDocument = PdfDocument()
