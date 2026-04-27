@@ -6,7 +6,7 @@ import zxingcpp.BarcodeReader
 
 class QRCodeAnalyzer(
     private val maxCodes: Int, // Added to pass the user's target limit
-    private val onQrCodeScanned: (String) -> Unit
+    private val onQrCodeScanned: (String, Int, Int, Int, Int) -> Unit // passing text + imageWidth + imageHeight + rawX + rawY
 ) : ImageAnalysis.Analyzer {
 
     // Initialize the C++ reader with desired options
@@ -26,7 +26,13 @@ class QRCodeAnalyzer(
                 for (result in results) {
                     val resultText = result.text
                     if (!resultText.isNullOrEmpty()) {
-                        onQrCodeScanned(resultText)
+                        val centerX = result.position.let {
+                            (it.topLeft.x + it.topRight.x + it.bottomLeft.x + it.bottomRight.x) / 4
+                        }
+                        val centerY = result.position.let {
+                            (it.topLeft.y + it.topRight.y + it.bottomLeft.y + it.bottomRight.y) / 4
+                        }
+                        onQrCodeScanned(resultText, image.width, image.height, centerX, centerY)
                     }
                 }
             }
