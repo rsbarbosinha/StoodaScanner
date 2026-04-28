@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">StoodaScanner</string>
-    <string name="stoodascanner">StoodaScanner</string>
+    <string name="app_name">Stooda Scanner</string>
+    <string name="stoodascanner">Stooda Scanner</string>
     <string name="daniel_gutschwager_amp_rodolfo_s_barbosa"><![CDATA[Daniel Gutschwager & Rodolfo S. Barbosa]]></string>
     <string name="how_many_qr_codes_to_scan">How many QR codes to scan?</string>
     <string name="_1_64">1–64</string>

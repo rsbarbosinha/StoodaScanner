@@ -11,8 +11,8 @@ class ScanOverlay(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
     private val points = mutableListOf<TimedPoint>()
     private val paint = Paint().apply {
-        color = Color.GREEN
-        strokeWidth = 10f
+        color = Color.argb(128, 0, 255, 0) // Semi-transparent green
+        strokeWidth = 6f // Thinner lines for a smaller checkmark
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         isAntiAlias = true
@@ -49,9 +49,15 @@ class ScanOverlay(context: Context, attrs: AttributeSet?) : View(context, attrs)
     }
 
     private fun drawCheckmark(canvas: Canvas, x: Float, y: Float) {
-        val size = 50f
-        // Draw a simple checkmark
-        canvas.drawLine(x - size / 2, y, x - size / 4, y + size / 2, paint)
-        canvas.drawLine(x - size / 4, y + size / 2, x + size / 2, y - size / 2, paint)
+        val checkSize = 25f
+        val circleRadius = 30f
+
+        // Draw the circle around the point
+        canvas.drawCircle(x, y, circleRadius, paint)
+
+        // Draw the smaller checkmark inside
+        // Adjusted coordinates to keep it centered within the circle
+        canvas.drawLine(x - checkSize / 2, y, x - checkSize / 6, y + checkSize / 3, paint)
+        canvas.drawLine(x - checkSize / 6, y + checkSize / 3, x + checkSize / 2, y - checkSize / 3, paint)
     }
 }
