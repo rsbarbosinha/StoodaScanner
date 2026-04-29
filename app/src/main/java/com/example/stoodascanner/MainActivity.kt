@@ -20,6 +20,8 @@ import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
@@ -33,6 +35,7 @@ import androidx.core.content.ContextCompat
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import androidx.core.view.isVisible
 
 class MainActivity : AppCompatActivity() {
 
@@ -61,6 +64,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val CAMERA_PERMISSION_REQUEST_CODE = 10
+        private const val STORAGE_PERMISSION_REQUEST_CODE = 11
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +94,21 @@ class MainActivity : AppCompatActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                when {
+                    layoutGraph.isVisible -> showResultsLayout()
+                    layoutResults.isVisible -> showDiscardResultsDialog()
+                    layoutScanning.isVisible -> showSetupLayout()
+                    layoutSetup.isVisible -> showExitDialog()
+                    else -> {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            }
+        })
+
         btnStartScan.setOnClickListener {
             hideKeyboard()
             val input = editQrCount.text.toString()
@@ -104,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnGenerateQr.setOnClickListener {
-            QRGenerator(this).generateStoodaPdf()
+            checkStoragePermissionAndGenerate()
         }
 
         btnRestart.setOnClickListener {
@@ -150,6 +169,24 @@ class MainActivity : AppCompatActivity() {
         handler.post(runnable)
     }
 
+    private fun showExitDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Exit App")
+            .setMessage("Do you really want to quit?")
+            .setPositiveButton("Yes") { _, _ -> finish() }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
+    private fun showDiscardResultsDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Discard Results")
+            .setMessage("Do you want to discard these results and go back to the main menu?")
+            .setPositiveButton("Yes") { _, _ -> showSetupLayout() }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
     private fun checkPermissionsAndStart() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             startScanningLayout()
@@ -158,13 +195,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkStoragePermissionAndGenerate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            QRGenerator(this).generateStoodaPdf()
+        } else {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), STORAGE_PERMISSION_REQUEST_CODE)
+        }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startScanningLayout()
-            } else {
-                Toast.makeText(this, "Camera permission is required to scan QR codes", Toast.LENGTH_SHORT).show()
+        when (requestCode) {
+            CAMERA_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startScanningLayout()
+                } else {
+                    Toast.makeText(this, "Camera permission is required to scan QR codes", Toast.LENGTH_SHORT).show()
+                }
+            }
+            STORAGE_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    QRGenerator(this).generateStoodaPdf()
+                } else {
+                    Toast.makeText(this, "Storage permission is required to save the PDF", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -242,6 +297,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleQrCodeFound(qrText: String, imageWidth: Int, imageHeight: Int, rawX: Int, rawY: Int) {
+        if (isScanningFinished) return
+
         // Validate: must be exactly 4 digits
         if (!qrText.matches(Regex("\\d{4}"))) {
             return
@@ -261,6 +318,8 @@ class MainActivity : AppCompatActivity() {
         }
         // Run on UI thread since Analyzer runs on a background thread
         runOnUiThread {
+            if (isScanningFinished || scannedCodes.size >= targetCount) return@runOnUiThread
+
             // Calculate scale factors. Note: If in portrait, swap imageWidth and imageHeight
             val scaleX = viewFinder.width.toFloat() / imageHeight.toFloat()
             val scaleY = viewFinder.height.toFloat() / imageWidth.toFloat()
