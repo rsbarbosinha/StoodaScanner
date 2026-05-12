@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.stoodascanner"
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.example.stoodascanner"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -80,7 +80,7 @@ dependencies {
     // We now use native XML parsing for XLSX.
 
     // CameraX
-    val camerax_version = "1.3.1"
+    val camerax_version = "1.4.2"
     implementation("androidx.camera:camera-core:${camerax_version}")
     implementation("androidx.camera:camera-camera2:${camerax_version}")
     implementation("androidx.camera:camera-lifecycle:${camerax_version}")

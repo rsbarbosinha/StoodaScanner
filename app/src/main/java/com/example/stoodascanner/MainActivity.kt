@@ -10,12 +10,15 @@ import android.os.VibratorManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.app.ActivityCompat
@@ -36,10 +39,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        enableEdgeToEdge()
         setContent {
             MaterialTheme {
-                Surface(color = MaterialTheme.colorScheme.background) {
+                Surface(
+                    modifier = Modifier.safeDrawingPadding(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     MainScreen()
                 }
             }
@@ -102,7 +108,7 @@ class MainActivity : ComponentActivity() {
 
                 val allStudents = viewModel.selectedClass?.students ?: emptyList()
                 val missingStudents = allStudents.filterIndexed { index, _ ->
-                    val prefix = (index).toString().padStart(2, '0')
+                     val prefix = (index).toString().padStart(2, '0')
                     viewModel.scannedCodes.none { it.startsWith(prefix) }
                 }
 

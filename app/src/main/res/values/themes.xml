@@ -3,6 +3,7 @@
     <style name="Base.Theme.StoodaScanner" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="27">always</item>
     </style>
 
     <style name="Theme.StoodaScanner" parent="Base.Theme.StoodaScanner" />
