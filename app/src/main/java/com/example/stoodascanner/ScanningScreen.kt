@@ -1,21 +1,26 @@
 package com.example.stoodascanner
 
-import android.content.Context
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +31,9 @@ import kotlinx.coroutines.delay
 fun ScanningScreen(
     scannedCount: Int,
     targetCount: Int,
+    isDebugMode: Boolean,
+    analysisResolution: String,
+    missingStudents: List<String> = emptyList(),
     onStartCamera: (PreviewView, (Float, Float) -> Unit) -> CameraManager
 ) {
     val overlayPoints = remember { mutableStateListOf<TimedPoint>() }
@@ -84,16 +92,58 @@ fun ScanningScreen(
             }
         }
 
+        // Missing students overlay
+        if (missingStudents.isNotEmpty() && missingStudents.size <= 3) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 64.dp)
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .padding(16.dp)
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stringResource(R.string.awaiting),
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    missingStudents.forEach { name ->
+                        Text(
+                            text = name,
+                            color = Color.Yellow,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+            }
+        }
+
         Box(
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
                 .background(Color.Black.copy(alpha = 0.5f)).padding(12.dp)
         ) {
             Text(
-                text = "Scanned: $scannedCount / $targetCount",
+                text = stringResource(R.string.scanned_format, scannedCount, targetCount),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
+        }
+
+        if (isDebugMode) {
+            Box(
+                modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
+                    .background(Color.Black.copy(alpha = 0.7f)).padding(8.dp)
+            ) {
+                Text(
+                    text = analysisResolution.ifEmpty { stringResource(R.string.initializing) },
+                    color = Color.Yellow,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 

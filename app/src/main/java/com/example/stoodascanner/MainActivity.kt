@@ -50,32 +50,32 @@ class MainActivity : ComponentActivity() {
     fun MainScreen() {
         val navController = rememberNavController()
 
-        BackHandler {
-            viewModel.handleBackPress(
-                onDiscard = { showDiscardResultsDialog() },
-                onExit = { showExitDialog() },
-                onShowSetup = { viewModel.showSetupLayout() }
-            )
-        }
-
         // Sink ViewModel appState to NavController
         androidx.compose.runtime.LaunchedEffect(viewModel.appState) {
-            navController.navigate(viewModel.appState.name) {
-                // Pop up to the menu or splash to avoid deep stacks if needed
-                if (viewModel.appState == AppState.MENU) {
-                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            val destination = viewModel.appState.name
+            if (navController.currentDestination?.route != destination) {
+                navController.navigate(destination) {
+                    // Force the backstack to stay at size 1 by always replacing the current destination.
+                    // This prevents the NavController from intercepting back button events,
+                    // ensuring our custom BackHandler is the one that executes.
+                    navController.currentDestination?.route?.let {
+                        popUpTo(it) { inclusive = true }
+                    }
+                    launchSingleTop = true
                 }
             }
         }
 
-        NavHost(navController = navController, startDestination = viewModel.appState.name) {
+        NavHost(navController = navController, startDestination = AppState.SPLASH.name) {
             composable(AppState.SPLASH.name) {
                 SplashScreen { viewModel.navigateTo(AppState.MENU) }
             }
             composable(AppState.MENU.name) {
                 MenuScreen(
                     onNavigate = { viewModel.navigateTo(it) },
-                    onExit = { showExitDialog() }
+                    onExit = { showExitDialog() },
+                    isDebugMode = viewModel.isDebugMode,
+                    onDebugToggle = { isEnabled -> viewModel.isDebugMode = isEnabled }
                 )
             }
             composable(AppState.CLASS_CREATION.name) {
@@ -100,9 +100,18 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val lifecycleOwner = LocalLifecycleOwner.current
 
+                val allStudents = viewModel.selectedClass?.students ?: emptyList()
+                val missingStudents = allStudents.filterIndexed { index, _ ->
+                    val prefix = (index).toString().padStart(2, '0')
+                    viewModel.scannedCodes.none { it.startsWith(prefix) }
+                }
+
                 ScanningScreen(
                     scannedCount = viewModel.scannedCodes.size,
                     targetCount = viewModel.targetCount,
+                    isDebugMode = viewModel.isDebugMode,
+                    analysisResolution = viewModel.analysisResolution,
+                    missingStudents = missingStudents,
                     onStartCamera = { previewView, onAddPoint ->
                         val cameraManager = CameraManager(
                             context = context,
@@ -110,6 +119,11 @@ class MainActivity : ComponentActivity() {
                             lifecycleOwner = lifecycleOwner,
                             onQrCodeScanned = { qrText, imageWidth, imageHeight, rawX, rawY ->
                                 handleQrCodeFound(qrText, imageWidth, imageHeight, rawX, rawY, previewView, onAddPoint)
+                            },
+                            onResolutionUpdate = { res -> 
+                                runOnUiThread {
+                                    viewModel.analysisResolution = res 
+                                }
                             }
                         )
                         cameraManager.startCamera(viewModel.targetCount)
@@ -132,6 +146,15 @@ class MainActivity : ComponentActivity() {
                     onRestart = { viewModel.showSetupLayout() }
                 )
             }
+        }
+
+        // Handle back press manually via ViewModel to keep state and UI in sync
+        BackHandler {
+            viewModel.handleBackPress(
+                onDiscard = { showDiscardResultsDialog() },
+                onExit = { showExitDialog() },
+                onShowSetup = { viewModel.showSetupLayout() }
+            )
         }
     }
 
@@ -164,6 +187,7 @@ class MainActivity : ComponentActivity() {
                 // New student scanned
                 if (viewModel.scannedCodes.size < viewModel.targetCount) {
                     viewModel.scannedCodes.add(qrText)
+                    viewModel.scannedCodes.sort()
                     triggerHapticFeedback()
                     if (viewModel.scannedCodes.size >= viewModel.targetCount) {
                         finishScanning()
@@ -184,13 +208,21 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun showExitDialog() {
-        AlertDialog.Builder(this).setTitle("Exit App").setMessage("Do you really want to quit?")
-            .setPositiveButton("Yes") { _, _ -> finish() }.setNegativeButton("No", null).show()
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.exit_app_title))
+            .setMessage(getString(R.string.exit_app_message))
+            .setPositiveButton(getString(R.string.yes)) { _, _ -> finish() }
+            .setNegativeButton(getString(R.string.no), null)
+            .show()
     }
 
     private fun showDiscardResultsDialog() {
-        AlertDialog.Builder(this).setTitle("Discard Results").setMessage("Do you want to discard these results and go back to the main menu?")
-            .setPositiveButton("Yes") { _, _ -> viewModel.showSetupLayout() }.setNegativeButton("No", null).show()
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.discard_results_title))
+            .setMessage(getString(R.string.discard_results_message))
+            .setPositiveButton(getString(R.string.yes)) { _, _ -> viewModel.showSetupLayout() }
+            .setNegativeButton(getString(R.string.no), null)
+            .show()
     }
 
     private fun checkPermissionsAndStart() {

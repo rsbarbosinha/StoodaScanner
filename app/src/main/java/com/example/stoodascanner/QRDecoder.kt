@@ -1,7 +1,5 @@
 package com.example.stoodascanner
 
-import java.util.Locale
-
 class QRDecoder(private val studentClass: StudentClass? = null) {
 
     /**
@@ -21,9 +19,9 @@ class QRDecoder(private val studentClass: StudentClass? = null) {
 
             val studentName = studentClass?.students?.getOrNull(firstTwo)
             val translatedId = if (studentName != null) {
-                "${String.format(Locale.US, "%02d", firstTwo + 1)}: $studentName"
+                "${(firstTwo + 1).toString().padStart(2, '0')}: $studentName"
             } else {
-                String.format(Locale.US, "%02d", firstTwo + 1)
+                (firstTwo + 1).toString().padStart(2, '0')
             }
 
             val translatedType = when (thirdDigit) {

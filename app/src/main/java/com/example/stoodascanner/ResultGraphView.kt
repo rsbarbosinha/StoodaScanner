@@ -88,7 +88,7 @@ class ResultGraphView @JvmOverloads constructor(
             currentX += barWidth + spacing
         }
 
-        // Draw Base Line
+        // Draw baseline
         val paintLine = Paint().apply {
             color = Color.BLACK
             strokeWidth = 5f

@@ -114,7 +114,7 @@ fun ClassCreationScreen(
                     modifier = Modifier.fillMaxWidth().padding(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("${String.format("%02d", index + 1)}: $name", modifier = Modifier.weight(1f))
+                    Text("${(index + 1).toString().padStart(2, '0')}: $name", modifier = Modifier.weight(1f))
                     Button(onClick = { manualNames.remove(name) }) {
                         Text("X")
                     }

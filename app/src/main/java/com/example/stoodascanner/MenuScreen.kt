@@ -1,9 +1,10 @@
 package com.example.stoodascanner
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,8 +16,13 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MenuScreen(
     onNavigate: (AppState) -> Unit,
-    onExit: () -> Unit
+    onExit: () -> Unit,
+    isDebugMode: Boolean,
+    onDebugToggle: (Boolean) -> Unit
 ) {
+    var clickCount by remember { mutableIntStateOf(0) }
+    var lastClickTime by remember { mutableLongStateOf(0L) }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.Center,
@@ -26,8 +32,28 @@ fun MenuScreen(
             text = stringResource(R.string.main_menu),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF333333)
+            color = Color(0xFF333333),
+            modifier = Modifier.clickable {
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastClickTime < 500) {
+                    clickCount++
+                } else {
+                    clickCount = 1
+                }
+                lastClickTime = currentTime
+                if (clickCount >= 5) {
+                    onDebugToggle(!isDebugMode)
+                    clickCount = 0
+                }
+            }
         )
+        if (isDebugMode) {
+            Text(
+                text = stringResource(R.string.debug_mode_on),
+                color = Color.Red,
+                fontSize = 12.sp
+            )
+        }
         Spacer(modifier = Modifier.height(40.dp))
         Button(
             onClick = { onNavigate(AppState.CLASS_CREATION) },

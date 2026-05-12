@@ -18,7 +18,8 @@ class CameraManager(
     private val context: Context,
     private val previewView: PreviewView,
     private val lifecycleOwner: LifecycleOwner,
-    private val onQrCodeScanned: (String, Int, Int, Int, Int) -> Unit
+    private val onQrCodeScanned: (String, Int, Int, Int, Int) -> Unit,
+    private val onResolutionUpdate: (String) -> Unit
 ) {
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraControl: CameraControl? = null
@@ -44,9 +45,17 @@ class CameraManager(
                 .setResolutionSelector(resolutionSelector)
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, QRCodeAnalyzer(targetCount) { qrText, imageWidth, imageHeight, rawX, rawY ->
-                        onQrCodeScanned(qrText, imageWidth, imageHeight, rawX, rawY)
-                    })
+                    it.setAnalyzer(cameraExecutor, QRCodeAnalyzer(
+                        maxCodes = targetCount,
+                        onResolutionUpdate = { width, height, rotation, fps ->
+                            this@CameraManager.onResolutionUpdate(
+                                context.getString(R.string.res_format, width, height, rotation, fps)
+                            )
+                        },
+                        onQrCodeScanned = { qrText, imageWidth, imageHeight, rawX, rawY ->
+                            onQrCodeScanned(qrText, imageWidth, imageHeight, rawX, rawY)
+                        }
+                    ))
                 }
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA

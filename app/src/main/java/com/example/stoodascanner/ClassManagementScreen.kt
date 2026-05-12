@@ -23,19 +23,18 @@ fun ClassManagementScreen(
     onGeneratePdf: (List<String>) -> Unit
 ) {
     var classes by remember { mutableStateOf(viewModel.classManager.getAllClasses()) }
-    var editingClass by remember { mutableStateOf<StudentClass?>(null) }
     val context = LocalContext.current
 
-    if (editingClass != null) {
+    if (viewModel.editingClass != null) {
         EditClassSubScreen(
-            initialClass = editingClass!!,
+            initialClass = viewModel.editingClass!!,
             onSave = { updatedClass ->
-                viewModel.classManager.deleteClass(editingClass!!.title)
+                viewModel.classManager.deleteClass(viewModel.editingClass!!.title)
                 viewModel.classManager.saveClass(updatedClass)
                 classes = viewModel.classManager.getAllClasses()
-                editingClass = null
+                viewModel.editingClass = null
             },
-            onCancel = { editingClass = null },
+            onCancel = { viewModel.editingClass = null },
             onGeneratePdf = onGeneratePdf
         )
     } else {
@@ -65,7 +64,7 @@ fun ClassManagementScreen(
                                 )
                             }
                             
-                            Button(onClick = { editingClass = cls }, modifier = Modifier.padding(horizontal = 4.dp)) {
+                            Button(onClick = { viewModel.editingClass = cls }, modifier = Modifier.padding(horizontal = 4.dp)) {
                                 Text(stringResource(R.string.edit))
                             }
                             

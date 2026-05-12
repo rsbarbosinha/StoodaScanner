@@ -12,8 +12,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val classManager = ClassManager(application)
     
     var appState by mutableStateOf(AppState.SPLASH)
+    var isDebugMode by mutableStateOf(false)
+    var analysisResolution by mutableStateOf("") // Will be set to localized string if needed, or handled in UI
     
     var selectedClass by mutableStateOf<StudentClass?>(null)
+    var editingClass by mutableStateOf<StudentClass?>(null)
     val scannedCodes = mutableStateListOf<String>()
     var targetCount by mutableIntStateOf(0)
     var isScanningFinished by mutableStateOf(false)
@@ -48,7 +51,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             AppState.SCANNING -> onShowSetup()
             AppState.SETUP -> appState = AppState.MENU
             AppState.CLASS_CREATION -> appState = AppState.MENU
-            AppState.CLASS_MANAGEMENT -> appState = AppState.MENU
+            AppState.CLASS_MANAGEMENT -> {
+                if (editingClass != null) {
+                    editingClass = null
+                } else {
+                    appState = AppState.MENU
+                }
+            }
             AppState.MENU -> onExit()
             AppState.SPLASH -> onExit()
         }

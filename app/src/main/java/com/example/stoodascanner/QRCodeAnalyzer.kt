@@ -5,20 +5,37 @@ import androidx.camera.core.ImageProxy
 import zxingcpp.BarcodeReader
 
 class QRCodeAnalyzer(
-    private val maxCodes: Int, // Added to pass the user's target limit
-    private val onQrCodeScanned: (String, Int, Int, Int, Int) -> Unit // passing text + imageWidth + imageHeight + rawX + rawY
+    private val maxCodes: Int,
+    private val onResolutionUpdate: (Int, Int, Int, Double) -> Unit,
+    private val onQrCodeScanned: (String, Int, Int, Int, Int) -> Unit
 ) : ImageAnalysis.Analyzer {
+    
+    private var lastResolutionUpdate = 0L
+    private var frameCount = 0
+    private var lastFpsTime = 0L
 
     // Initialize the C++ reader with desired options
     private val reader = BarcodeReader(BarcodeReader.Options().apply {
         tryHarder = true
-        // CRITICAL: Tell ZXing to keep searching until it finds this many symbols
         maxNumberOfSymbols = maxCodes
-        // Optional: formats = setOf(BarcodeReader.Format.QR_CODE)
     })
 
     override fun analyze(image: ImageProxy) {
         try {
+            frameCount++
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastResolutionUpdate > 1000) {
+                val fps = if (lastFpsTime > 0) {
+                    frameCount * 1000.0 / (currentTime - lastFpsTime)
+                } else 0.0
+                
+                onResolutionUpdate(image.width, image.height, image.imageInfo.rotationDegrees, fps)
+                
+                lastResolutionUpdate = currentTime
+                frameCount = 0
+                lastFpsTime = currentTime
+            }
+
             val results = reader.read(image)
 
             if (results.isNotEmpty()) {

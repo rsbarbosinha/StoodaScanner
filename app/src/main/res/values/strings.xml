@@ -7,6 +7,7 @@
     <string name="start_scan">Start Scan</string>
     <string name="generate_qr_pdf">Generate QR PDF</string>
     <string name="scanned_0_x">Scanned: 0 / X</string>
+    <string name="awaiting">Awaiting:</string>
     <string name="scan_results">Scan Results</string>
     <string name="show_visual_graph">Show Visual Graph</string>
     <string name="restart_app">Restart App</string>
@@ -18,14 +19,14 @@
     <string name="new_class_creation">New Class Creation</string>
     <string name="new_quiz_creation">New Quiz Creation</string>
     <string name="quit">Quit</string>
-    <string name="number_of_students_1_64">Number of Students (1-64)</string>
+    <string name="number_of_students_1_64">Number of Students (1–64)</string>
     <string name="class_title_hint">Class Title (e.g. Team A)</string>
     <string name="upload_file_csv_xlsx">Upload File (CSV/XLSX)</string>
     <string name="manual_name_entry">Manual Name Entry</string>
     <string name="add">Add</string>
     <string name="students">Students</string>
     <string name="save_and_generate_qr_pdf">Save and Generate QR PDF</string>
-    <string name="name_column_index">Name Column (1, 2, ...)</string>
+    <string name="name_column_index">Name Column (1, 2, …)</string>
     <string name="error_enter_title">Please enter a title</string>
     <string name="error_add_student">Add at least one student</string>
     <string name="manage_classes">Manage Classes</string>
@@ -40,4 +41,12 @@
     <string name="delete_class_message">Are you sure you want to delete the class \"%1$s\"?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="debug_mode_on">DEBUG MODE ON</string>
+    <string name="initializing">Initializing…</string>
+    <string name="scanned_format">Scanned: %1$d / %2$d</string>
+    <string name="exit_app_title">Exit App</string>
+    <string name="exit_app_message">Do you really want to quit?</string>
+    <string name="discard_results_title">Discard Results</string>
+    <string name="discard_results_message">Do you want to discard these results and go back to the main menu?</string>
+    <string name="res_format">%1$dx%2$d @ %3$d° (%4$.1f fps)</string>
 </resources>
