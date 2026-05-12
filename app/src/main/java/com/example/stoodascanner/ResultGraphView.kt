@@ -1,11 +1,13 @@
 package com.example.stoodascanner
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.graphics.toColorInt
 
 class ResultGraphView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -27,12 +29,12 @@ class ResultGraphView @JvmOverloads constructor(
     }
 
     private val barColors = listOf(
-        Color.parseColor("#4CAF50"), // Green
-        Color.parseColor("#2196F3"), // Blue
-        Color.parseColor("#FFC107"), // Amber
-        Color.parseColor("#E91E63"), // Pink
-        Color.parseColor("#9C27B0"), // Purple
-        Color.parseColor("#FF5722")  // Deep Orange
+        "#4CAF50".toColorInt(), // Green
+        "#2196F3".toColorInt(), // Blue
+        "#FFC107".toColorInt(), // Amber
+        "#E91E63".toColorInt(), // Pink
+        "#9C27B0".toColorInt(), // Purple
+        "#FF5722".toColorInt()  // Deep Orange
     )
 
     fun setData(counts: Map<String, Int>) {
@@ -40,6 +42,7 @@ class ResultGraphView @JvmOverloads constructor(
         invalidate()
     }
 
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (data.isEmpty()) return

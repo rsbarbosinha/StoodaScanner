@@ -22,29 +22,35 @@ class QRGenerator(private val context: Context) {
     private val pageWidth = 595
     private val pageHeight = 842
 
-    fun generateStoodaPdf(inputNumbers: List<String> = listOf(
-        "0000", "0112", "0224", "0336", "0448", "0550",
-        "0606", "0718", "0820", "0932", "1045", "1157",
-        "1203", "1315", "1427", "1539", "1641", "1753",
-        "1809", "1911", "2024", "2136", "2248", "2350")) {
+    fun generateStoodaPdf(inputNames: List<String>) {
         Thread {
             try {
                 val pdfDocument = PdfDocument()
                 val writer = BarcodeWriter()
 
-                val chunks = inputNumbers.chunked(6)
+                for (id in inputNames.indices) {
+                    val studentName = inputNames[id]
+                    
+                    // Generate all 6 QR codes for this student (A, B, C, D, E, ?)
+                    val studentQrCodes = mutableListOf<String>()
+                    for (type in 0..5) {
+                        val firstDigit = id / 10
+                        val secondDigit = id % 10
+                        val thirdDigit = type
+                        val checksum = (firstDigit + secondDigit + thirdDigit) % 10
+                        studentQrCodes.add("$firstDigit$secondDigit$thirdDigit$checksum")
+                    }
 
-                for (chunk in chunks) {
                     // Front Side (QR Codes)
                     val frontPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pdfDocument.pages.size).create()
                     val frontPage = pdfDocument.startPage(frontPageInfo)
-                    drawFrontPage(frontPage.canvas, chunk, writer)
+                    drawFrontPage(frontPage.canvas, studentQrCodes, writer)
                     pdfDocument.finishPage(frontPage)
 
                     // Back Side (Numbers and Grid)
                     val backPageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pdfDocument.pages.size).create()
                     val backPage = pdfDocument.startPage(backPageInfo)
-                    drawBackPage(backPage.canvas, chunk)
+                    drawBackPage(backPage.canvas, studentQrCodes, studentName)
                     pdfDocument.finishPage(backPage)
                 }
 
@@ -58,14 +64,14 @@ class QRGenerator(private val context: Context) {
         }.start()
     }
 
-    private fun drawFrontPage(canvas: Canvas, numbers: List<String>, writer: BarcodeWriter) {
+    private fun drawFrontPage(canvas: Canvas, qrCodes: List<String>, writer: BarcodeWriter) {
         val cellWidth = pageWidth / 2f
         val cellHeight = pageHeight / 3f
         
         // Target size for QR code (70% of cell)
         val qrTargetSize = (cellWidth.coerceAtMost(cellHeight) * 0.7f).toInt()
 
-        for (i in numbers.indices) {
+        for (i in qrCodes.indices) {
             val col = i % 2
             val row = i / 2
 
@@ -73,10 +79,8 @@ class QRGenerator(private val context: Context) {
             val centerX = col * cellWidth + cellWidth / 2f
             val centerY = row * cellHeight + cellHeight / 2f
 
-            val bitmap = writer.encode(numbers[i], qrTargetSize, qrTargetSize, BarcodeReader.Format.MICRO_QR_CODE, "L", 0)
+            val bitmap = writer.encode(qrCodes[i], qrTargetSize, qrTargetSize, BarcodeReader.Format.MICRO_QR_CODE, "L", 0)
             
-            // Draw the bitmap centered on the cell center
-            // Subtracting HALF of the ACTUAL bitmap width/height from the cell center
             val left = centerX - (bitmap.width / 2f)
             val top = centerY - (bitmap.height / 2f)
             
@@ -84,10 +88,9 @@ class QRGenerator(private val context: Context) {
         }
     }
 
-    private fun drawBackPage(canvas: Canvas, numbers: List<String>) {
+    private fun drawBackPage(canvas: Canvas, qrCodes: List<String>, studentName: String) {
         val cellWidth = pageWidth / 2f
         val cellHeight = pageHeight / 3f
-        val decoder = QRDecoder()
 
         val paintText = Paint().apply {
             color = Color.BLACK
@@ -112,16 +115,20 @@ class QRGenerator(private val context: Context) {
             canvas.drawLine(0f, y, pageWidth.toFloat(), y, paintGrid)
         }
 
-        for (i in numbers.indices) {
+        val types = listOf("A", "B", "C", "D", "E", "?")
+
+        for (i in qrCodes.indices) {
             // Mirror columns for back-side alignment
             val col = 1 - (i % 2)
             val row = i / 2
 
             val centerX = col * cellWidth + cellWidth / 2f
+            val centerY = row * cellHeight + cellHeight / 2f
             val bottomY = (row + 1) * cellHeight - 20f // 20pt padding from the bottom of the cell
 
-            val decodedText = decoder.decode(numbers[i])
-            canvas.drawText(decodedText, centerX, bottomY, paintText)
+            // Draw student name and type
+            canvas.drawText(studentName, centerX, centerY, paintText)
+            canvas.drawText(types[i], centerX, bottomY, paintText)
         }
     }
 
