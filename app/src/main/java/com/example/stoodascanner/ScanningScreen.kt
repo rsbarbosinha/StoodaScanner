@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -34,6 +37,7 @@ fun ScanningScreen(
     isDebugMode: Boolean,
     analysisResolution: String,
     missingStudents: List<String> = emptyList(),
+    onFinish: () -> Unit,
     onStartCamera: (PreviewView, (Float, Float) -> Unit) -> CameraManager
 ) {
     val overlayPoints = remember { mutableStateListOf<TimedPoint>() }
@@ -121,7 +125,7 @@ fun ScanningScreen(
         }
 
         Box(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp)
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp)
                 .background(Color.Black.copy(alpha = 0.5f)).padding(12.dp)
         ) {
             Text(
@@ -130,6 +134,27 @@ fun ScanningScreen(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
+        }
+
+        // Finish button if some codes were scanned but not all
+        if (scannedCount > 0 && scannedCount < targetCount) {
+            Button(
+                onClick = onFinish,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black.copy(alpha = 0.4f),
+                    contentColor = Color.White.copy(alpha = 0.9f)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.finish_scanning),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         if (isDebugMode) {

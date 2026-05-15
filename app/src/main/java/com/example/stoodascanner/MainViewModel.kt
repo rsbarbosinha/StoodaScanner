@@ -30,16 +30,44 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         selectedClass = studentClass
     }
 
-    fun startScanning(studentClass: StudentClass) {
-        selectedClass = studentClass
-        targetCount = studentClass.students.size
+    fun startScanning(count: Int) {
+        selectedClass = null
+        targetCount = count
         scannedCodes.clear()
+        repeat(targetCount) { scannedCodes.add("") }
         isScanningFinished = false
         appState = AppState.SCANNING
     }
 
+    fun startScanningWithClass(studentClass: StudentClass) {
+        selectedClass = studentClass
+        targetCount = studentClass.students.size
+        scannedCodes.clear()
+        repeat(targetCount) { scannedCodes.add("") }
+        isScanningFinished = false
+        appState = AppState.SCANNING
+    }
+
+    fun showQuickSetup() {
+        appState = AppState.QUICK_SETUP
+        selectedClass = null
+        scannedCodes.clear()
+        isScanningFinished = false
+    }
+
+    fun showSelectClass() {
+        appState = AppState.SELECT_CLASS
+        selectedClass = null
+        scannedCodes.clear()
+        isScanningFinished = false
+    }
+
     fun showSetupLayout() {
-        appState = AppState.SETUP
+        if (selectedClass != null) {
+            appState = AppState.SELECT_CLASS
+        } else {
+            appState = AppState.QUICK_SETUP
+        }
         scannedCodes.clear()
         isScanningFinished = false
     }
@@ -49,7 +77,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             AppState.GRAPH -> appState = AppState.RESULTS
             AppState.RESULTS -> onDiscard()
             AppState.SCANNING -> onShowSetup()
-            AppState.SETUP -> appState = AppState.MENU
+            AppState.QUICK_SETUP -> appState = AppState.MENU
+            AppState.SELECT_CLASS -> appState = AppState.MENU
             AppState.CLASS_CREATION -> appState = AppState.MENU
             AppState.CLASS_MANAGEMENT -> {
                 if (editingClass != null) {

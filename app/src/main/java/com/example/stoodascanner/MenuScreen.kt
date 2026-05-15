@@ -70,7 +70,14 @@ fun MenuScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { onNavigate(AppState.SETUP) },
+            onClick = { onNavigate(AppState.QUICK_SETUP) },
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            Text(stringResource(R.string.quick_custom_quiz))
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { onNavigate(AppState.SELECT_CLASS) },
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
             Text(stringResource(R.string.new_quiz_creation))

@@ -64,9 +64,7 @@ class MainActivity : ComponentActivity() {
                     // Force the backstack to stay at size 1 by always replacing the current destination.
                     // This prevents the NavController from intercepting back button events,
                     // ensuring our custom BackHandler is the one that executes.
-                    navController.currentDestination?.route?.let {
-                        popUpTo(it) { inclusive = true }
-                    }
+                    popUpTo(navController.graph.id) { inclusive = true }
                     launchSingleTop = true
                 }
             }
@@ -96,8 +94,14 @@ class MainActivity : ComponentActivity() {
                     onGeneratePdf = { studentNames -> checkStoragePermissionAndGenerate(studentNames) }
                 )
             }
-            composable(AppState.SETUP.name) {
-                SetupScreen(
+            composable(AppState.QUICK_SETUP.name) {
+                QuickSetupScreen(
+                    viewModel = viewModel,
+                    onStartScan = { checkPermissionsAndStart() }
+                )
+            }
+            composable(AppState.SELECT_CLASS.name) {
+                SelectClassScreen(
                     viewModel = viewModel,
                     onStartScan = { checkPermissionsAndStart() }
                 )
@@ -106,18 +110,20 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val lifecycleOwner = LocalLifecycleOwner.current
 
-                val allStudents = viewModel.selectedClass?.students ?: emptyList()
-                val missingStudents = allStudents.filterIndexed { index, _ ->
-                     val prefix = (index).toString().padStart(2, '0')
-                    viewModel.scannedCodes.none { it.startsWith(prefix) }
+                val allStudents = viewModel.selectedClass?.students ?: List(viewModel.targetCount) { "" }
+                val missingStudents = allStudents.mapIndexedNotNull { index, name ->
+                    if (viewModel.scannedCodes.getOrNull(index)?.isEmpty() == true) {
+                        if (name.isEmpty()) "ID: ${index + 1}" else name
+                    } else null
                 }
 
                 ScanningScreen(
-                    scannedCount = viewModel.scannedCodes.size,
+                    scannedCount = viewModel.scannedCodes.count { it.isNotEmpty() },
                     targetCount = viewModel.targetCount,
                     isDebugMode = viewModel.isDebugMode,
                     analysisResolution = viewModel.analysisResolution,
                     missingStudents = missingStudents,
+                    onFinish = { finishScanning() },
                     onStartCamera = { previewView, onAddPoint ->
                         val cameraManager = CameraManager(
                             context = context,
@@ -177,7 +183,7 @@ class MainActivity : ComponentActivity() {
         if (firstTwo !in 0..63 || thirdDigit !in 0..5 || forthDigit != (firstDigit+secondDigit+thirdDigit) % 10) return
 
         runOnUiThread {
-            if (viewModel.isScanningFinished || viewModel.scannedCodes.size >= viewModel.targetCount) return@runOnUiThread
+            if (viewModel.isScanningFinished) return@runOnUiThread
 
             val scaleX = previewView.width.toFloat() / imageHeight.toFloat()
             val scaleY = previewView.height.toFloat() / imageWidth.toFloat()
@@ -186,23 +192,20 @@ class MainActivity : ComponentActivity() {
 
             onAddPoint(screenX, screenY)
 
-            val studentPrefix = qrText.substring(0, 2)
-            val existingIndex = viewModel.scannedCodes.indexOfFirst { it.startsWith(studentPrefix) }
-
-            if (existingIndex == -1) {
-                // New student scanned
-                if (viewModel.scannedCodes.size < viewModel.targetCount) {
-                    viewModel.scannedCodes.add(qrText)
-                    viewModel.scannedCodes.sort()
+            if (firstTwo in viewModel.scannedCodes.indices) {
+                val existingCode = viewModel.scannedCodes[firstTwo]
+                if (existingCode != qrText) {
+                    val wasEmpty = existingCode.isEmpty()
+                    viewModel.scannedCodes[firstTwo] = qrText
                     triggerHapticFeedback()
-                    if (viewModel.scannedCodes.size >= viewModel.targetCount) {
-                        finishScanning()
+
+                    if (wasEmpty) {
+                        val currentScannedCount = viewModel.scannedCodes.count { it.isNotEmpty() }
+                        if (currentScannedCount >= viewModel.targetCount) {
+                            finishScanning()
+                        }
                     }
                 }
-            } else if (viewModel.scannedCodes[existingIndex] != qrText) {
-                // Same student, different answer - update it
-                viewModel.scannedCodes[existingIndex] = qrText
-                triggerHapticFeedback()
             }
         }
     }
@@ -233,7 +236,6 @@ class MainActivity : ComponentActivity() {
 
     private fun checkPermissionsAndStart() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            viewModel.scannedCodes.clear()
             viewModel.isScanningFinished = false
             viewModel.navigateTo(AppState.SCANNING)
         } else {

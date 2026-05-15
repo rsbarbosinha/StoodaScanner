@@ -22,12 +22,14 @@ fun GraphScreen(
     onRestart: () -> Unit
 ) {
     val decoder = remember { QRDecoder(selectedClass) }
-    val counts = remember(scannedCodes.size) {
+    val counts = remember(scannedCodes.toList()) {
         val map = mutableMapOf<String, Int>()
-        scannedCodes.forEach { code ->
-            val decoded = decoder.decode(code)
-            val type = decoded.split(" - ").getOrNull(1) ?: "?"
-            map[type] = (map[type] ?: 0) + 1
+        scannedCodes.forEachIndexed { index, code ->
+            if (code.isNotEmpty()) {
+                val decoded = decoder.decode(code, index)
+                val type = decoded.split(" - ").lastOrNull() ?: "?"
+                map[type] = (map[type] ?: 0) + 1
+            }
         }
         map.toSortedMap()
     }

@@ -23,7 +23,9 @@ fun ResultsScreen(
     onRestart: () -> Unit
 ) {
     val decoder = remember { QRDecoder(selectedClass) }
-    val decodedList = remember(scannedCodes.size) { scannedCodes.map { decoder.decode(it) } }
+    val decodedList = remember(scannedCodes.toList()) { 
+        scannedCodes.mapIndexed { index, code -> decoder.decode(code, index) } 
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
