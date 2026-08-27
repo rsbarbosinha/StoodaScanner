@@ -1,4 +1,4 @@
-package com.example.stoodascanner.backend
+package com.example.stoodascanner
 
 import android.content.Context
 import com.google.gson.Gson

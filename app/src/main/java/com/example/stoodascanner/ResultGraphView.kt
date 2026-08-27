@@ -1,4 +1,4 @@
-package com.example.stoodascanner.backend
+package com.example.stoodascanner
 
 import android.annotation.SuppressLint
 import android.content.Context

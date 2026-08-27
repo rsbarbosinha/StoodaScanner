@@ -1,4 +1,4 @@
-package com.example.stoodascanner.backend
+package com.example.stoodascanner
 
 import android.content.Context
 import android.view.MotionEvent
@@ -10,7 +10,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.example.stoodascanner.R
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit

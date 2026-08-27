@@ -19,10 +19,7 @@
     <string name="new_class_creation">New Class Creation</string>
     <string name="new_quiz_creation">New Quiz Creation</string>
     <string name="quick_custom_quiz">Quick Custom Quiz</string>
-    <string name="select_class">Select class</string>
-    <string name="add_class">Add Class</string>
-    <string name="manage">Manage</string>
-    <string name="done">Done</string>
+    <string name="select_class">Select Class</string>
     <string name="enter_count">Enter number of QR codes (1–64):</string>
     <string name="quit">Quit</string>
     <string name="number_of_students_1_64">Number of Students (1–64)</string>

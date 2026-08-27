@@ -1,4 +1,4 @@
-package com.example.stoodascanner.backend
+package com.example.stoodascanner
 
 class QRDecoder(private val studentClass: StudentClass? = null) {
 

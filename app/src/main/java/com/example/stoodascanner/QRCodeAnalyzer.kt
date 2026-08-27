@@ -1,4 +1,4 @@
-package com.example.stoodascanner.backend
+package com.example.stoodascanner
 
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy

@@ -1,4 +1,4 @@
-package com.example.stoodascanner.frontend
+package com.example.stoodascanner
 
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
@@ -16,7 +16,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -29,8 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.stoodascanner.backend.CameraManager
-import com.example.stoodascanner.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -44,7 +41,7 @@ fun ScanningScreen(
     onStartCamera: (PreviewView, (Float, Float) -> Unit) -> CameraManager
 ) {
     val overlayPoints = remember { mutableStateListOf<TimedPoint>() }
-    var cameraManager: CameraManager? by remember { mutableStateOf(null) }
+    var cameraManager: CameraManager? by remember { androidx.compose.runtime.mutableStateOf(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(

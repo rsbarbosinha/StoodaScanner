@@ -19,10 +19,7 @@
     <string name="new_class_creation">Criar Nova Turma</string>
     <string name="new_quiz_creation">Criar Novo Quiz</string>
     <string name="quick_custom_quiz">Quiz Rápido Personalizado</string>
-    <string name="select_class">Selecionar turma</string>
-    <string name="add_class">Adicionar Turma</string>
-    <string name="manage">Gerenciar</string>
-    <string name="done">Concluído</string>
+    <string name="select_class">Selecionar Turma</string>
     <string name="enter_count">Insira o número de códigos QR (1–64):</string>
     <string name="quit">Sair</string>
     <string name="number_of_students_1_64">Número de Alunos (1–64)</string>

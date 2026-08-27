@@ -1,4 +1,4 @@
-package com.example.stoodascanner.frontend
+package com.example.stoodascanner
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,8 +12,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.stoodascanner.backend.AppState
-import com.example.stoodascanner.R
 
 @Composable
 fun MenuScreen(

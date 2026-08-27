@@ -1,4 +1,4 @@
-package com.example.stoodascanner.frontend
+package com.example.stoodascanner
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -19,11 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.stoodascanner.backend.AppState
-import com.example.stoodascanner.backend.MainViewModel
-import com.example.stoodascanner.R
-import com.example.stoodascanner.backend.StudentClass
-import com.example.stoodascanner.backend.StudentImportParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -140,7 +135,7 @@ fun ClassCreationScreen(
                     viewModel.classManager.saveClass(newClass)
                     
                     onGeneratePdf(manualNames.toList())
-                    viewModel.navigateTo(AppState.SELECT_CLASS)
+                    viewModel.navigateTo(AppState.MENU)
                 }
             },
             modifier = Modifier.fillMaxWidth()

@@ -1,6 +1,5 @@
-package com.example.stoodascanner.backend
+package com.example.stoodascanner
 
-import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Canvas
@@ -58,7 +57,7 @@ class QRGenerator(private val context: Context) {
                 savePdf(pdfDocument)
             } catch (e: Exception) {
                 e.printStackTrace()
-                (context as? Activity)?.runOnUiThread {
+                (context as? android.app.Activity)?.runOnUiThread {
                     Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
@@ -157,13 +156,13 @@ class QRGenerator(private val context: Context) {
 
             outputStream?.use {
                 pdfDocument.writeTo(it)
-                (context as? Activity)?.runOnUiThread {
+                (context as? android.app.Activity)?.runOnUiThread {
                     Toast.makeText(context, "PDF saved to Documents", Toast.LENGTH_LONG).show()
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            (context as? Activity)?.runOnUiThread {
+            (context as? android.app.Activity)?.runOnUiThread {
                 Toast.makeText(context, "Error saving PDF: ${e.message}", Toast.LENGTH_LONG).show()
             }
         } finally {
