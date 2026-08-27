@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 
 @Suppress("DEPRECATION")
 class MainActivity : ComponentActivity() {
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MaterialTheme {
+            StoodaScannerTheme {
                 Surface(
                     modifier = Modifier.safeDrawingPadding(),
                     color = MaterialTheme.colorScheme.background
@@ -72,14 +73,12 @@ class MainActivity : ComponentActivity() {
 
         NavHost(navController = navController, startDestination = AppState.SPLASH.name) {
             composable(AppState.SPLASH.name) {
-                SplashScreen { viewModel.navigateTo(AppState.MENU) }
+                SplashScreen { viewModel.navigateTo(AppState.CLASS_SELECTION) }
             }
-            composable(AppState.MENU.name) {
-                MenuScreen(
-                    onNavigate = { viewModel.navigateTo(it) },
-                    onExit = { showExitDialog() },
-                    isDebugMode = viewModel.isDebugMode,
-                    onDebugToggle = { isEnabled -> viewModel.isDebugMode = isEnabled }
+            composable(AppState.CLASS_SELECTION.name) {
+                ClassSelectionScreen(
+                    viewModel = viewModel,
+                    onStartScan = { checkPermissionsAndStart() }
                 )
             }
             composable(AppState.CLASS_CREATION.name) {
@@ -94,23 +93,11 @@ class MainActivity : ComponentActivity() {
                     onGeneratePdf = { studentNames -> checkStoragePermissionAndGenerate(studentNames) }
                 )
             }
-            composable(AppState.QUICK_SETUP.name) {
-                QuickSetupScreen(
-                    viewModel = viewModel,
-                    onStartScan = { checkPermissionsAndStart() }
-                )
-            }
-            composable(AppState.SELECT_CLASS.name) {
-                SelectClassScreen(
-                    viewModel = viewModel,
-                    onStartScan = { checkPermissionsAndStart() }
-                )
-            }
             composable(AppState.SCANNING.name) {
                 val context = LocalContext.current
                 val lifecycleOwner = LocalLifecycleOwner.current
 
-                val allStudents = viewModel.selectedClass?.students ?: List(viewModel.targetCount) { "" }
+                val allStudents = viewModel.selectedClass?.students ?: emptyList()
                 val missingStudents = allStudents.mapIndexedNotNull { index, name ->
                     if (viewModel.scannedCodes.getOrNull(index)?.isEmpty() == true) {
                         if (name.isEmpty()) "ID: ${index + 1}" else name

@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,7 +35,7 @@ fun SplashScreen(onFinished: () -> Unit) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.White),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -49,17 +50,19 @@ fun SplashScreen(onFinished: () -> Unit) {
             text = stringResource(R.string.stoodascanner),
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF333333)
+            color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             text = stringResource(R.string.daniel_gutschwager_amp_rodolfo_s_barbosa),
             fontSize = 14.sp,
-            color = Color(0xFF666666)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(48.dp))
         LinearProgressIndicator(
             progress = animatedProgress,
-            modifier = Modifier.width(200.dp)
+            modifier = Modifier.width(200.dp),
+            color = MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
     }
 }

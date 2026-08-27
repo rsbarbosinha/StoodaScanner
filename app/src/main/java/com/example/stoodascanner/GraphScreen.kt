@@ -3,11 +3,12 @@ package com.example.stoodascanner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,14 +41,23 @@ fun GraphScreen(
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Spacer(modifier = Modifier.height(16.dp))
         
+        val onBackground = MaterialTheme.colorScheme.onBackground.toArgb()
+        val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant.toArgb()
+        val outline = MaterialTheme.colorScheme.outline.toArgb()
+
         AndroidView(
-            factory = { ctx -> ResultGraphView(ctx).apply { setData(counts) } },
-            modifier = Modifier.weight(1f).fillMaxWidth().background(Color(0xFFF5F5F5)).padding(8.dp),
-            update = { it.setData(counts) }
+            factory = { ctx -> 
+                ResultGraphView(ctx).apply { 
+                    setData(counts, onBackground, onSurfaceVariant, outline) 
+                } 
+            },
+            modifier = Modifier.weight(1f).fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant).padding(8.dp),
+            update = { it.setData(counts, onBackground, onSurfaceVariant, outline) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))

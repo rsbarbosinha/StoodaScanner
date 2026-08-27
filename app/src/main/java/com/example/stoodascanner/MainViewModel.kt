@@ -13,7 +13,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     
     var appState by mutableStateOf(AppState.SPLASH)
     var isDebugMode by mutableStateOf(false)
-    var analysisResolution by mutableStateOf("") // Will be set to localized string if needed, or handled in UI
+    var analysisResolution by mutableStateOf("")
     
     var selectedClass by mutableStateOf<StudentClass?>(null)
     var editingClass by mutableStateOf<StudentClass?>(null)
@@ -26,20 +26,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         appState = state
     }
 
-    fun selectClass(studentClass: StudentClass?) {
-        selectedClass = studentClass
-    }
-
-    fun startScanning(count: Int) {
-        selectedClass = null
-        targetCount = count
-        scannedCodes.clear()
-        repeat(targetCount) { scannedCodes.add("") }
-        isScanningFinished = false
-        appState = AppState.SCANNING
-    }
-
-    fun startScanningWithClass(studentClass: StudentClass) {
+    fun selectClass(studentClass: StudentClass) {
         selectedClass = studentClass
         targetCount = studentClass.students.size
         scannedCodes.clear()
@@ -48,26 +35,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         appState = AppState.SCANNING
     }
 
-    fun showQuickSetup() {
-        appState = AppState.QUICK_SETUP
-        selectedClass = null
-        scannedCodes.clear()
-        isScanningFinished = false
-    }
-
-    fun showSelectClass() {
-        appState = AppState.SELECT_CLASS
-        selectedClass = null
-        scannedCodes.clear()
-        isScanningFinished = false
-    }
-
     fun showSetupLayout() {
-        if (selectedClass != null) {
-            appState = AppState.SELECT_CLASS
-        } else {
-            appState = AppState.QUICK_SETUP
-        }
+        appState = AppState.CLASS_SELECTION
         scannedCodes.clear()
         isScanningFinished = false
     }
@@ -77,17 +46,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             AppState.GRAPH -> appState = AppState.RESULTS
             AppState.RESULTS -> onDiscard()
             AppState.SCANNING -> onShowSetup()
-            AppState.QUICK_SETUP -> appState = AppState.MENU
-            AppState.SELECT_CLASS -> appState = AppState.MENU
-            AppState.CLASS_CREATION -> appState = AppState.MENU
+            AppState.CLASS_SELECTION -> onExit()
+            AppState.CLASS_CREATION -> appState = AppState.CLASS_SELECTION
             AppState.CLASS_MANAGEMENT -> {
                 if (editingClass != null) {
                     editingClass = null
                 } else {
-                    appState = AppState.MENU
+                    appState = AppState.CLASS_SELECTION
                 }
             }
-            AppState.MENU -> onExit()
             AppState.SPLASH -> onExit()
         }
     }

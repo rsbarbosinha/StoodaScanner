@@ -52,5 +52,7 @@
     <string name="discard_results_title">Discard Results</string>
     <string name="discard_results_message">Do you want to discard these results and go back to the main menu?</string>
     <string name="res_format">%1$dx%2$d @ %3$d° (%4$.1f fps)</string>
+    <string name="select_class_title">Who is scanning?</string>
+    <string name="quick_setup_title">Quick Quiz</string>
     <string name="finish_scanning">Finish Scanning</string>
 </resources>

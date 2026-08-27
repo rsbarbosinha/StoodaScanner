@@ -14,31 +14,36 @@ class ResultGraphView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private var data: Map<String, Int> = emptyMap()
+    private var textColor: Int = Color.BLACK
+    private var labelColor: Int = Color.DKGRAY
+    private var baselineColor: Int = Color.BLACK
+
     private val paintBar = Paint().apply { isAntiAlias = true }
     private val paintText = Paint().apply {
-        color = Color.BLACK
         textSize = 40f
         textAlign = Paint.Align.CENTER
         isAntiAlias = true
     }
     private val paintLabel = Paint().apply {
-        color = Color.DKGRAY
         textSize = 30f
         textAlign = Paint.Align.CENTER
         isAntiAlias = true
     }
 
     private val barColors = listOf(
-        "#4CAF50".toColorInt(), // Green
-        "#2196F3".toColorInt(), // Blue
-        "#FFC107".toColorInt(), // Amber
-        "#E91E63".toColorInt(), // Pink
-        "#9C27B0".toColorInt(), // Purple
-        "#FF5722".toColorInt()  // Deep Orange
+        "#F19C5E".toColorInt(), // Graxinha Orange
+        "#705D4E".toColorInt(), // Graxinha Secondary
+        "#5E624C".toColorInt(), // Graxinha Tertiary
+        "#BB6D31".toColorInt(), // Graxinha Orange Dark
+        "#D7C2B1".toColorInt(), // Graxinha Secondary Light
+        "#E3E9CC".toColorInt()  // Graxinha Tertiary Light
     )
 
-    fun setData(counts: Map<String, Int>) {
+    fun setData(counts: Map<String, Int>, textColor: Int, labelColor: Int, baselineColor: Int) {
         this.data = counts.toSortedMap()
+        this.textColor = textColor
+        this.labelColor = labelColor
+        this.baselineColor = baselineColor
         invalidate()
     }
 
@@ -46,6 +51,9 @@ class ResultGraphView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (data.isEmpty()) return
+
+        paintText.color = textColor
+        paintLabel.color = labelColor
 
         val padding = 100f
         val graphWidth = width - 2 * padding
@@ -90,7 +98,7 @@ class ResultGraphView @JvmOverloads constructor(
 
         // Draw baseline
         val paintLine = Paint().apply {
-            color = Color.BLACK
+            color = baselineColor
             strokeWidth = 5f
         }
         canvas.drawLine(padding, height - padding, width - padding, height - padding, paintLine)

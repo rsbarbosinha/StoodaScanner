@@ -135,7 +135,7 @@ fun ClassCreationScreen(
                     viewModel.classManager.saveClass(newClass)
                     
                     onGeneratePdf(manualNames.toList())
-                    viewModel.navigateTo(AppState.MENU)
+                    viewModel.navigateTo(AppState.CLASS_SELECTION)
                 }
             },
             modifier = Modifier.fillMaxWidth()

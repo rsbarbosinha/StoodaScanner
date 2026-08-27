@@ -82,13 +82,13 @@ fun ClassManagementScreen(
                                 Text(stringResource(R.string.delete))
                             }
                         }
-                        Divider()
+                        Divider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
                 }
             }
             
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { viewModel.navigateTo(AppState.MENU) }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { viewModel.navigateTo(AppState.CLASS_SELECTION) }, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.back_to_menu))
             }
         }

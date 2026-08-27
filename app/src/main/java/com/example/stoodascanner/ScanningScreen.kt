@@ -3,23 +3,13 @@ package com.example.stoodascanner
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -102,20 +92,21 @@ fun ScanningScreen(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 64.dp)
-                    .background(Color.Black.copy(alpha = 0.6f))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
                     .padding(16.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = stringResource(R.string.awaiting),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                     missingStudents.forEach { name ->
                         Text(
                             text = name,
-                            color = Color.Yellow,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -126,11 +117,12 @@ fun ScanningScreen(
 
         Box(
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp)
-                .background(Color.Black.copy(alpha = 0.5f)).padding(12.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)).padding(12.dp)
         ) {
             Text(
                 text = stringResource(R.string.scanned_format, scannedCount, targetCount),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
@@ -144,10 +136,11 @@ fun ScanningScreen(
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black.copy(alpha = 0.4f),
-                    contentColor = Color.White.copy(alpha = 0.9f)
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
                 Text(
                     text = stringResource(R.string.finish_scanning),
@@ -160,11 +153,12 @@ fun ScanningScreen(
         if (isDebugMode) {
             Box(
                 modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
-                    .background(Color.Black.copy(alpha = 0.7f)).padding(8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f)).padding(8.dp)
             ) {
                 Text(
                     text = analysisResolution.ifEmpty { stringResource(R.string.initializing) },
-                    color = Color.Yellow,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
