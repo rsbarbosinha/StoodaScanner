@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.backend
 
 import android.app.Application
 import androidx.compose.runtime.getValue
@@ -77,14 +77,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             AppState.GRAPH -> appState = AppState.RESULTS
             AppState.RESULTS -> onDiscard()
             AppState.SCANNING -> onShowSetup()
-            AppState.QUICK_SETUP -> appState = AppState.MENU
-            AppState.SELECT_CLASS -> appState = AppState.MENU
-            AppState.CLASS_CREATION -> appState = AppState.MENU
+            AppState.QUICK_SETUP -> appState = AppState.SELECT_CLASS
+            AppState.SELECT_CLASS -> onExit()
+            AppState.CLASS_CREATION -> appState = AppState.SELECT_CLASS
             AppState.CLASS_MANAGEMENT -> {
                 if (editingClass != null) {
                     editingClass = null
                 } else {
-                    appState = AppState.MENU
+                    appState = AppState.SELECT_CLASS
                 }
             }
             AppState.MENU -> onExit()

@@ -1,56 +1,55 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.frontend
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
+import com.example.stoodascanner.backend.QRDecoder
+import com.example.stoodascanner.R
+import com.example.stoodascanner.backend.StudentClass
 
 @Composable
-fun GraphScreen(
+fun ResultsScreen(
     scannedCodes: List<String>,
     selectedClass: StudentClass?,
+    onShowGraph: () -> Unit,
     onRestart: () -> Unit
 ) {
     val decoder = remember { QRDecoder(selectedClass) }
-    val counts = remember(scannedCodes.toList()) {
-        val map = mutableMapOf<String, Int>()
-        scannedCodes.forEachIndexed { index, code ->
-            if (code.isNotEmpty()) {
-                val decoded = decoder.decode(code, index)
-                val type = decoded.split(" - ").lastOrNull() ?: "?"
-                map[type] = (map[type] ?: 0) + 1
-            }
-        }
-        map.toSortedMap()
+    val decodedList = remember(scannedCodes.toList()) { 
+        scannedCodes.mapIndexed { index, code -> decoder.decode(code, index) } 
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
-            text = stringResource(R.string.results_distribution),
+            text = stringResource(R.string.scan_results),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
-        
-        AndroidView(
-            factory = { ctx -> ResultGraphView(ctx).apply { setData(counts) } },
-            modifier = Modifier.weight(1f).fillMaxWidth().background(Color(0xFFF5F5F5)).padding(8.dp),
-            update = { it.setData(counts) }
-        )
-
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(decodedList) { item ->
+                Text(text = item, modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth())
+                Divider()
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onShowGraph, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.show_visual_graph))
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = onRestart, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.restart_app))
         }

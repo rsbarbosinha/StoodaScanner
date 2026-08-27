@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.backend
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -26,6 +27,16 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.stoodascanner.R
+import com.example.stoodascanner.frontend.ClassCreationScreen
+import com.example.stoodascanner.frontend.ClassManagementScreen
+import com.example.stoodascanner.frontend.GraphScreen
+import com.example.stoodascanner.frontend.MenuScreen
+import com.example.stoodascanner.frontend.QuickSetupScreen
+import com.example.stoodascanner.frontend.ResultsScreen
+import com.example.stoodascanner.frontend.ScanningScreen
+import com.example.stoodascanner.frontend.SelectClassScreen
+import com.example.stoodascanner.frontend.SplashScreen
 
 @Suppress("DEPRECATION")
 class MainActivity : ComponentActivity() {
@@ -57,7 +68,7 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
 
         // Sink ViewModel appState to NavController
-        androidx.compose.runtime.LaunchedEffect(viewModel.appState) {
+        LaunchedEffect(viewModel.appState) {
             val destination = viewModel.appState.name
             if (navController.currentDestination?.route != destination) {
                 navController.navigate(destination) {
@@ -72,7 +83,7 @@ class MainActivity : ComponentActivity() {
 
         NavHost(navController = navController, startDestination = AppState.SPLASH.name) {
             composable(AppState.SPLASH.name) {
-                SplashScreen { viewModel.navigateTo(AppState.MENU) }
+                SplashScreen { viewModel.navigateTo(AppState.SELECT_CLASS) }
             }
             composable(AppState.MENU.name) {
                 MenuScreen(
@@ -130,11 +141,19 @@ class MainActivity : ComponentActivity() {
                             previewView = previewView,
                             lifecycleOwner = lifecycleOwner,
                             onQrCodeScanned = { qrText, imageWidth, imageHeight, rawX, rawY ->
-                                handleQrCodeFound(qrText, imageWidth, imageHeight, rawX, rawY, previewView, onAddPoint)
+                                handleQrCodeFound(
+                                    qrText,
+                                    imageWidth,
+                                    imageHeight,
+                                    rawX,
+                                    rawY,
+                                    previewView,
+                                    onAddPoint
+                                )
                             },
-                            onResolutionUpdate = { res -> 
+                            onResolutionUpdate = { res ->
                                 runOnUiThread {
-                                    viewModel.analysisResolution = res 
+                                    viewModel.analysisResolution = res
                                 }
                             }
                         )

@@ -1,5 +1,6 @@
 package com.example.stoodascanner
 
+import com.example.stoodascanner.backend.StudentImportParser
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

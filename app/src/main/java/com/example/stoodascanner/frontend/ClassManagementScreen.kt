@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.frontend
 
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AlertDialog
@@ -16,6 +16,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.stoodascanner.backend.AppState
+import com.example.stoodascanner.backend.MainViewModel
+import com.example.stoodascanner.R
+import com.example.stoodascanner.backend.StudentClass
 
 @Composable
 fun ClassManagementScreen(
@@ -88,7 +92,7 @@ fun ClassManagementScreen(
             }
             
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { viewModel.navigateTo(AppState.MENU) }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { viewModel.navigateTo(AppState.SELECT_CLASS) }, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.back_to_menu))
             }
         }
@@ -98,8 +102,8 @@ fun ClassManagementScreen(
 @SuppressLint("DefaultLocale")
 @Composable
 fun EditClassSubScreen(
-    initialClass: StudentClass, 
-    onSave: (StudentClass) -> Unit, 
+    initialClass: StudentClass,
+    onSave: (StudentClass) -> Unit,
     onCancel: () -> Unit,
     onGeneratePdf: (List<String>) -> Unit
 ) {
