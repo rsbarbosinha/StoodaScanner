@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.utils
 
 import android.content.Context
 import android.net.Uri

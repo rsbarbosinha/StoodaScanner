@@ -1,4 +1,6 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.scanner
+
+import com.example.stoodascanner.data.StudentClass
 
 class QRDecoder(private val studentClass: StudentClass? = null) {
 

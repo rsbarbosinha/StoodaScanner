@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +15,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.stoodascanner.scanner.QRDecoder
+import com.example.stoodascanner.R
+import com.example.stoodascanner.data.StudentClass
+import com.example.stoodascanner.ui.components.ResultGraphView
 
 @Composable
 fun GraphScreen(
@@ -52,7 +56,7 @@ fun GraphScreen(
 
         AndroidView(
             factory = { ctx -> 
-                ResultGraphView(ctx).apply { 
+                ResultGraphView(ctx).apply {
                     setData(counts, onBackground, onSurfaceVariant, outline) 
                 } 
             },

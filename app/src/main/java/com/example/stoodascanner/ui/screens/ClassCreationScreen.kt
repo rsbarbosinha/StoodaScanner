@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.ui.screens
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -19,6 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.stoodascanner.data.AppState
+import com.example.stoodascanner.viewModel.MainViewModel
+import com.example.stoodascanner.R
+import com.example.stoodascanner.data.StudentClass
+import com.example.stoodascanner.utils.StudentImportParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

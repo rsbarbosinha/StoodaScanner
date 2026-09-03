@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -18,6 +18,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.stoodascanner.viewModel.MainViewModel
+import com.example.stoodascanner.R
 
 @Composable
 fun SetupScreen(

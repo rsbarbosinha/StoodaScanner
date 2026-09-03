@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.data
 
 import android.content.Context
 import com.google.gson.Gson
@@ -24,7 +24,7 @@ class ClassManager(private val context: Context) {
 
     fun getAllClasses(): List<StudentClass> {
         if (!classesFile.exists()) return emptyList()
-        val type = object : TypeToken<List<StudentClass>>() {}.type
+        val type = object : com.google.gson.reflect.TypeToken<List<StudentClass>>() {}.type
         return try {
             gson.fromJson(classesFile.readText(), type)
         } catch (_: Exception) {

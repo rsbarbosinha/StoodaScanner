@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.viewModel
 
 import android.app.Application
 import androidx.compose.runtime.getValue
@@ -7,14 +7,17 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import com.example.stoodascanner.data.AppState
+import com.example.stoodascanner.data.ClassManager
+import com.example.stoodascanner.data.StudentClass
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     val classManager = ClassManager(application)
-    
+
     var appState by mutableStateOf(AppState.SPLASH)
     var isDebugMode by mutableStateOf(false)
     var analysisResolution by mutableStateOf("")
-    
+
     var selectedClass by mutableStateOf<StudentClass?>(null)
     var editingClass by mutableStateOf<StudentClass?>(null)
     val scannedCodes = mutableStateListOf<String>()

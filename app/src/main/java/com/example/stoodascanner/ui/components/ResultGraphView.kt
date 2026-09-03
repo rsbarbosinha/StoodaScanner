@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.ui.components
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -66,7 +66,7 @@ class ResultGraphView @JvmOverloads constructor(
 
         data.entries.forEachIndexed { index, entry ->
             val barHeight = (entry.value.toFloat() / maxCount) * graphHeight
-            
+
             // Draw Bar
             paintBar.color = barColors[index % barColors.size]
             canvas.drawRect(
