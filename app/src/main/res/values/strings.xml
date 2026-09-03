@@ -17,6 +17,9 @@
     <string name="test_debug_mode">Test/Debug Mode</string>
     <string name="main_menu">Main Menu</string>
     <string name="new_class_creation">New Class Creation</string>
+    <string name="import_via_spreadsheet">Import via spreadsheet</string>
+    <string name="custom_creation">Custom</string>
+    <string name="select_creation_method">Select Creation Method</string>
     <string name="new_quiz_creation">New Quiz Creation</string>
     <string name="quick_custom_quiz">Quick Custom Quiz</string>
     <string name="select_class">Select Class</string>

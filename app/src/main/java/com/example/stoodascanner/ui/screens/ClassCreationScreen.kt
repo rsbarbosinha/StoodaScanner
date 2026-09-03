@@ -24,6 +24,7 @@ import com.example.stoodascanner.viewModel.MainViewModel
 import com.example.stoodascanner.R
 import com.example.stoodascanner.data.StudentClass
 import com.example.stoodascanner.utils.StudentImportParser
+import com.example.stoodascanner.viewModel.CreationType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,7 +61,13 @@ fun ClassCreationScreen(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = stringResource(R.string.new_class_creation), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        val titleText = if (viewModel.creationType == CreationType.IMPORT) {
+            stringResource(R.string.import_via_spreadsheet)
+        } else {
+            stringResource(R.string.custom_creation)
+        }
+        
+        Text(text = titleText, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
         
         OutlinedTextField(
@@ -70,42 +77,44 @@ fun ClassCreationScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        if (viewModel.creationType == CreationType.IMPORT) {
+            Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = nameColumnIndex,
-            onValueChange = { nameColumnIndex = it },
-            label = { Text(stringResource(R.string.name_column_index)) },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Button(
-            onClick = { filePickerLauncher.launch("*/*") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.upload_file_csv_xlsx))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
-                value = newName,
-                onValueChange = { newName = it },
-                label = { Text(stringResource(R.string.manual_name_entry)) },
-                modifier = Modifier.weight(1f)
+                value = nameColumnIndex,
+                onValueChange = { nameColumnIndex = it },
+                label = { Text(stringResource(R.string.name_column_index)) },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {
-                if (newName.isNotBlank() && manualNames.size < 64) {
-                    manualNames.add(newName.trim())
-                    newName = ""
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Button(
+                onClick = { filePickerLauncher.launch("*/*") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.upload_file_csv_xlsx))
+            }
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    label = { Text(stringResource(R.string.manual_name_entry)) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = {
+                    if (newName.isNotBlank() && manualNames.size < 64) {
+                        manualNames.add(newName.trim())
+                        newName = ""
+                    }
+                }) {
+                    Text(stringResource(R.string.add))
                 }
-            }) {
-                Text(stringResource(R.string.add))
             }
         }
 

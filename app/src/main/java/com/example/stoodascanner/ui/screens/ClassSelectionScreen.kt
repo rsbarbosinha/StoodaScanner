@@ -92,7 +92,7 @@ fun ClassSelectionScreen(
             }
             item {
                 AddClassItem(
-                    onClick = { viewModel.navigateTo(AppState.CLASS_CREATION) }
+                    onClick = { viewModel.navigateTo(AppState.CLASS_CREATION_CHOICE) }
                 )
             }
         }

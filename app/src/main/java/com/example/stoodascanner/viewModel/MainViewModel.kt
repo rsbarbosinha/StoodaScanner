@@ -11,6 +11,10 @@ import com.example.stoodascanner.data.AppState
 import com.example.stoodascanner.data.ClassManager
 import com.example.stoodascanner.data.StudentClass
 
+enum class CreationType {
+    IMPORT, CUSTOM
+}
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     val classManager = ClassManager(application)
 
@@ -20,6 +24,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var selectedClass by mutableStateOf<StudentClass?>(null)
     var editingClass by mutableStateOf<StudentClass?>(null)
+    var creationType by mutableStateOf(CreationType.CUSTOM)
     val scannedCodes = mutableStateListOf<String>()
     var targetCount by mutableIntStateOf(0)
     var isScanningFinished by mutableStateOf(false)
@@ -50,7 +55,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             AppState.RESULTS -> onDiscard()
             AppState.SCANNING -> onShowSetup()
             AppState.CLASS_SELECTION -> onExit()
-            AppState.CLASS_CREATION -> appState = AppState.CLASS_SELECTION
+            AppState.CLASS_CREATION_CHOICE -> appState = AppState.CLASS_SELECTION
+            AppState.CLASS_CREATION -> appState = AppState.CLASS_CREATION_CHOICE
             AppState.CLASS_MANAGEMENT -> {
                 if (editingClass != null) {
                     editingClass = null

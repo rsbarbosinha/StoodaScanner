@@ -28,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.stoodascanner.data.AppState
 import com.example.stoodascanner.scanner.CameraManager
+import com.example.stoodascanner.ui.screens.ClassCreationChoiceScreen
 import com.example.stoodascanner.ui.screens.ClassCreationScreen
 import com.example.stoodascanner.ui.screens.ClassManagementScreen
 import com.example.stoodascanner.ui.screens.ClassSelectionScreen
@@ -91,6 +92,9 @@ class MainActivity : ComponentActivity() {
                     viewModel = viewModel,
                     onStartScan = { checkPermissionsAndStart() }
                 )
+            }
+            composable(AppState.CLASS_CREATION_CHOICE.name) {
+                ClassCreationChoiceScreen(viewModel = viewModel)
             }
             composable(AppState.CLASS_CREATION.name) {
                 ClassCreationScreen(

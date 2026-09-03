@@ -17,6 +17,9 @@
     <string name="test_debug_mode">Modo Teste/Debug</string>
     <string name="main_menu">Menu Principal</string>
     <string name="new_class_creation">Criar Nova Turma</string>
+    <string name="import_via_spreadsheet">Importar via planilha</string>
+    <string name="custom_creation">Personalizado</string>
+    <string name="select_creation_method">Selecione o Método de Criação</string>
     <string name="new_quiz_creation">Criar Novo Quiz</string>
     <string name="quick_custom_quiz">Quiz Rápido Personalizado</string>
     <string name="select_class">Selecionar Turma</string>
