@@ -55,4 +55,11 @@
     <string name="select_class_title">Quem está escaneando?</string>
     <string name="quick_setup_title">Quiz Rápido</string>
     <string name="finish_scanning">Finalizar Escaneamento</string>
+    <string name="class_nickname_hint">Apelido (1-2 chars)</string>
+    <string name="attendance_check">Chamada</string>
+    <string name="do_quiz">Realizar Quiz</string>
+    <string name="finish_section">Finalizar Seção</string>
+    <string name="session_options">Opções da Seção</string>
+    <string name="attendance_scanning">Escaneamento de Chamada</string>
+    <string name="missing_students_count">Faltando: %1$d</string>
 </resources>

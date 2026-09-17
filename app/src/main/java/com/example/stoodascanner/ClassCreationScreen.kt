@@ -30,6 +30,7 @@ fun ClassCreationScreen(
     onGeneratePdf: (List<String>) -> Unit
 ) {
     var classTitle by remember { mutableStateOf("") }
+    var classNickname by remember { mutableStateOf("") }
     var nameColumnIndex by remember { mutableStateOf("1") }
     val manualNames = remember { mutableStateListOf<String>() }
     var newName by remember { mutableStateOf("") }
@@ -62,6 +63,15 @@ fun ClassCreationScreen(
             value = classTitle,
             onValueChange = { classTitle = it },
             label = { Text(stringResource(R.string.class_title_hint)) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = classNickname,
+            onValueChange = { if (it.length <= 2) classNickname = it },
+            label = { Text(stringResource(R.string.class_nickname_hint)) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -131,7 +141,7 @@ fun ClassCreationScreen(
                 } else if (manualNames.isEmpty()) {
                     Toast.makeText(context, context.getString(R.string.error_add_student), Toast.LENGTH_SHORT).show()
                 } else {
-                    val newClass = StudentClass(classTitle, manualNames.toList())
+                    val newClass = StudentClass(classTitle, classNickname, manualNames.toList())
                     viewModel.classManager.saveClass(newClass)
                     
                     onGeneratePdf(manualNames.toList())
