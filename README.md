@@ -1,62 +1,60 @@
 # StoodaScanner 🎓📱
 
-StoodaScanner is a specialized Android application designed for teachers to conduct quick quizzes and track student performance in real-time. By leveraging the device's camera to scan custom QR codes, teachers can instantly collect answers from an entire classroom.
+StoodaScanner is a high-performance Android application designed for educators to conduct quick quizzes and track student performance in real-time. By leveraging modern mobile technologies, it transforms a smartphone into a powerful classroom response system.
 
 ## 🚀 Key Features
 
-*   **Bulk Scanning:** High-performance QR code analysis using ZXing-C++ for rapid detection of multiple codes.
-*   **Real-time Feedback:** A custom UI overlay (`ScanOverlay`) draws semi-transparent checkmarks on the viewfinder to confirm each student's answer has been captured.
-*   **Automatic Validation:** Built-in 4-digit protocol with a custom checksum verification to ensure scan accuracy.
-*   **Result Visualization:** Instant generation of distribution graphs (`ResultGraphView`) to analyze classroom performance (Answers A through E).
-*   **PDF Generation:** Built-in utility to generate and print the standardized QR code sheets for students.
-*   **Haptic Feedback:** Vibrates on unique successful scans to allow teachers to focus on the students, not the screen.
+*   **Modern UI/UX**: Built entirely with **Jetpack Compose** and **Material 3**, providing a clean, fluid, and intuitive interface.
+*   **Intelligent Class Management**:
+    *   **Class Selection**: Easily switch between different classes and groups.
+    *   **Importing**: Support for importing student lists directly from **CSV** or **XLSX** spreadsheets.
+    *   **Custom Creation**: A dedicated workflow for manually building classes or adjusting imported data.
+*   **High-Performance Bulk Scanning**: 
+    *   Powered by **ZXing-C++** for lightning-fast detection of multiple QR codes in a single frame.
+    *   Real-time feedback via **Compose Canvas** overlays, showing interactive checkmarks where codes are detected.
+*   **Automatic Validation**: Implements a robust 4-digit protocol with a built-in checksum to ensure zero-error data collection.
+*   **Data Visualization**: Instant generation of distribution graphs to analyze classroom performance across multiple answer choices (A-E).
+*   **Standardized PDF Generation**: Built-in utility to generate and print ready-to-use QR code sheets for students.
 
-## 🛠 Architecture & Implementation
+## 🛠 Tech Stack & Architecture
 
-### Core Components
-*   **`QRCodeAnalyzer`**: An `ImageAnalysis.Analyzer` implementation that processes camera frames. It uses `zxingcpp` for high-speed multi-code detection and calculates the geometric center of each QR code for overlay positioning.
-*   **`ScanOverlay`**: A custom `View` that manages the temporal rendering of detection markers. It uses a `postInvalidate` loop to handle the 200ms fade/removal logic.
-*   **`QRDecoder`**: Implements the proprietary 4-digit mapping:
-    *   **Digits 1-2**: Student ID (01-64).
-    *   **Digit 3**: Answer Choice (A, B, C, D, E, or ?).
-    *   **Digit 4**: Modulo-10 Checksum of the first three digits.
-*   **`QRGenerator`**: Handles the creation of standardized PDF sheets for classroom distribution.
-
-### Tech Stack
+### Core Technologies
 *   **Language**: Kotlin
-*   **Camera API**: CameraX
-*   **Processing Engine**: ZXing-C++ (via `zxing-cpp-android`)
-*   **UI**: Material Design & Custom Canvas Drawing
+*   **UI Framework**: Jetpack Compose (Material 3)
+*   **Navigation**: Compose Navigation with a centralized `AppState` machine.
+*   **Camera API**: CameraX with optimized `ImageAnalysis` pipelines.
+*   **Native Engine**: ZXing-C++ (via JNI) for peak processing performance.
+*   **Data Layer**: JSON-based local persistence for class and student management.
 
-## 📋 Best Practices Implemented
-*   **Backpressure Handling**: Uses `STRATEGY_KEEP_ONLY_LATEST` in CameraX to ensure the UI remains responsive even during heavy processing.
-*   **Geometric Scaling**: Implements precise coordinate transformation between the `ImageAnalysis` buffer resolution and the physical screen `PreviewView` dimensions, accounting for portrait/landscape orientation.
-*   **Concurrency**: Separates image analysis (background thread) from UI updates (main thread) using `runOnUiThread`.
-*   **Resource Management**: Strict adherence to `ImageProxy` closing lifecycle to prevent memory leaks and camera freezes.
+### The Stooda Protocol (4-Digit System)
+Each QR code represents a unique combination of student and answer:
+1.  **Digits 1-2**: Student Identifier (Index 00-63).
+2.  **Digit 3**: Answer Choice (0=A, 1=B, 2=C, 3=D, 4=E, 5=?).
+3.  **Digit 4**: Modulo-10 Checksum of the first three digits for transmission integrity.
 
-## ⚙️ Compilation & Setup
+## 📋 Architecture Highlights
+*   **Unidirectional Data Flow**: State is managed in `MainViewModel`, ensuring a single source of truth for navigation and scan results.
+*   **Coordinate Transformation**: Precise mapping between CameraX buffer coordinates and screen space for accurate overlay positioning, handling all device orientations.
+*   **Resource Efficiency**: Strict lifecycle management of `ImageProxy` and camera resources to prevent memory leaks and ensure sustained performance.
+
+## ⚙️ Setup & Installation
 
 1.  **Prerequisites**:
-    *   Android Studio Hedgehog (2023.1.1) or newer.
-    *   Android SDK 23 (Android 6.0) or higher.
-    *   Physical Android device (CameraX performance is limited on emulators).
+    *   Android Studio Ladybug (2024.2.1) or newer.
+    *   Android SDK 26 (Android 8.0) or higher.
+    *   Physical device recommended for optimal CameraX performance.
 
-2.  **Steps**:
-    *   Clone the repository.
-    *   Open the project in Android Studio.
-    *   Wait for **Gradle Sync** to finish.
-    *   Connect your device via USB or Wi-Fi Debugging.
-    *   Click **Run 'app'** (Shift + F10).
+2.  **Deployment**:
+    *   Clone the repository and sync Gradle.
+    *   The app requires `CAMERA` and `WRITE_EXTERNAL_STORAGE` (on older APIs) permissions, requested at runtime.
 
-3.  **Permissions**:
-    *   The app will request `Manifest.permission.CAMERA` on the first launch.
+## 📖 Standard Workflow
 
-## 📖 How to Use
-
-1.  **Prepare**: Use the "Generate QR PDF" button to create the student cards.
-2.  **Configure**: Enter the number of students/answers expected in the current session.
-3.  **Scan**: Point the camera at the students' QR cards. Watch for the green circles indicating successful capture.
-4.  **Analyze**: Once the target count is reached, review the list of results or tap "Show Visual Graph" to see the answer distribution.
+1.  **Create**: Go to the "New Class" section and choose between importing a spreadsheet or entering names manually.
+2.  **Print**: Generate the QR PDF and distribute the sheets to your students.
+3.  **Session**: Select the class from the main grid and tap to start scanning.
+4.  **Capture**: Point the camera at the classroom. Green checkmarks will confirm each unique capture.
+5.  **Review**: Analyze the distribution of answers in the results screen or the visual graph view.
 
 ---
-*Developed for educators who value speed and efficiency in the classroom.*
+*Developed for educators who value speed, accuracy, and modern design in the classroom.*
