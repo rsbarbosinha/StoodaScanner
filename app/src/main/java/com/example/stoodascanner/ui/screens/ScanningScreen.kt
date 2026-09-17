@@ -29,6 +29,7 @@ fun ScanningScreen(
     isDebugMode: Boolean,
     analysisResolution: String,
     missingStudents: List<String> = emptyList(),
+    forceShowMissingOverlay: Boolean = false,
     onFinish: () -> Unit,
     onStartCamera: (PreviewView, (Float, Float) -> Unit) -> CameraManager
 ) {
@@ -89,7 +90,7 @@ fun ScanningScreen(
         }
 
         // Missing students overlay
-        if (missingStudents.isNotEmpty() && missingStudents.size <= 3) {
+        if (missingStudents.isNotEmpty() && (missingStudents.size <= 3 || forceShowMissingOverlay)) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)

@@ -58,4 +58,11 @@
     <string name="select_class_title">Who is scanning?</string>
     <string name="quick_setup_title">Quick Quiz</string>
     <string name="finish_scanning">Finish Scanning</string>
+    <string name="class_nickname_hint">Nickname (1-2 chars)</string>
+    <string name="attendance_check">Attendance Check</string>
+    <string name="do_quiz">Do Quiz</string>
+    <string name="finish_section">Finish Section</string>
+    <string name="session_options">Session Options</string>
+    <string name="attendance_scanning">Attendance Scanning</string>
+    <string name="missing_students_count">Missing: %1$d</string>
 </resources>

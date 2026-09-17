@@ -14,10 +14,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -39,6 +48,7 @@ import com.example.stoodascanner.ui.screens.SplashScreen
 import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 import com.example.stoodascanner.utils.QRGenerator
 import com.example.stoodascanner.viewModel.MainViewModel
+import kotlinx.coroutines.delay
 
 @Suppress("DEPRECATION")
 class MainActivity : ComponentActivity() {
@@ -59,7 +69,26 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.safeDrawingPadding(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        MainScreen()
+
+                        viewModel.activeSessionClass?.let { activeClass ->
+                            val students = activeClass.students ?: emptyList()
+                            val missingCount = if (viewModel.attendanceTaken) {
+                                students.size - viewModel.presentStudentIndices.size
+                            } else 0
+                            Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                                FloatingSessionBubble(
+                                    studentClass = activeClass,
+                                    missingCount = missingCount,
+                                    onClick = {
+                                        viewModel.editingClass = activeClass
+                                        viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -90,8 +119,13 @@ class MainActivity : ComponentActivity() {
             composable(AppState.CLASS_SELECTION.name) {
                 ClassSelectionScreen(
                     viewModel = viewModel,
-                    onStartScan = { checkPermissionsAndStart() }
+                    onStartScan = {
+                        // Now selectClass navigates to SESSION_OPTIONS
+                    }
                 )
+            }
+            composable(AppState.SESSION_OPTIONS.name) {
+                SessionOptionsScreen(viewModel = viewModel)
             }
             composable(AppState.CLASS_CREATION_CHOICE.name) {
                 ClassCreationChoiceScreen(viewModel = viewModel)
@@ -108,20 +142,72 @@ class MainActivity : ComponentActivity() {
                     onGeneratePdf = { studentNames -> checkStoragePermissionAndGenerate(studentNames) }
                 )
             }
+            composable(AppState.ATTENDANCE_SCANNING.name) {
+                val context = LocalContext.current
+                val lifecycleOwner = LocalLifecycleOwner.current
+
+                var lastScanTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+                var showTimeoutOverlay by remember { mutableStateOf(false) }
+
+                val allStudents = viewModel.activeSessionClass?.students ?: emptyList()
+                val missingStudents = allStudents.mapIndexedNotNull { index, name ->
+                    if (!viewModel.presentStudentIndices.contains(index)) {
+                        if (name.isEmpty()) "ID: ${index + 1}" else name
+                    } else null
+                }
+
+                LaunchedEffect(lastScanTime) {
+                    showTimeoutOverlay = false
+                    delay(4000)
+                    showTimeoutOverlay = true
+                }
+
+                ScanningScreen(
+                    scannedCount = viewModel.presentStudentIndices.size,
+                    targetCount = allStudents.size,
+                    isDebugMode = viewModel.isDebugMode,
+                    analysisResolution = viewModel.analysisResolution,
+                    missingStudents = missingStudents,
+                    forceShowMissingOverlay = showTimeoutOverlay,
+                    onFinish = {
+                        viewModel.isScanningFinished = true
+                        viewModel.navigateTo(AppState.SESSION_OPTIONS)
+                    },
+                    onStartCamera = { previewView, onAddPoint ->
+                        val cameraManager = CameraManager(
+                            context = context,
+                            previewView = previewView,
+                            lifecycleOwner = lifecycleOwner,
+                            onQrCodeScanned = { qrText, imageWidth, imageHeight, rawX, rawY ->
+                                lastScanTime = System.currentTimeMillis()
+                                handleQrCodeFound(qrText, imageWidth, imageHeight, rawX, rawY, previewView, onAddPoint)
+                            },
+                            onResolutionUpdate = { res ->
+                                runOnUiThread { viewModel.analysisResolution = res }
+                            }
+                        )
+                        cameraManager.startCamera(allStudents.size)
+                        cameraManager
+                    }
+                )
+            }
             composable(AppState.SCANNING.name) {
                 val context = LocalContext.current
                 val lifecycleOwner = LocalLifecycleOwner.current
 
                 val allStudents = viewModel.selectedClass?.students ?: emptyList()
+                // Quiz scanning only cares about students present in the session
                 val missingStudents = allStudents.mapIndexedNotNull { index, name ->
-                    if (viewModel.scannedCodes.getOrNull(index)?.isEmpty() == true) {
+                    if (viewModel.presentStudentIndices.contains(index) && viewModel.scannedCodes.getOrNull(index)?.isEmpty() == true) {
                         if (name.isEmpty()) "ID: ${index + 1}" else name
                     } else null
                 }
 
+                val sessionTargetCount = viewModel.targetCount
+
                 ScanningScreen(
                     scannedCount = viewModel.scannedCodes.count { it.isNotEmpty() },
-                    targetCount = viewModel.targetCount,
+                    targetCount = sessionTargetCount,
                     isDebugMode = viewModel.isDebugMode,
                     analysisResolution = viewModel.analysisResolution,
                     missingStudents = missingStudents,
@@ -174,8 +260,7 @@ class MainActivity : ComponentActivity() {
         BackHandler {
             viewModel.handleBackPress(
                 onDiscard = { showDiscardResultsDialog() },
-                onExit = { showExitDialog() },
-                onShowSetup = { viewModel.showSetupLayout() }
+                onExit = { showExitDialog() }
             )
         }
     }
@@ -203,16 +288,37 @@ class MainActivity : ComponentActivity() {
             onAddPoint(screenX, screenY)
 
             if (firstTwo in viewModel.scannedCodes.indices) {
-                val existingCode = viewModel.scannedCodes[firstTwo]
-                if (existingCode != qrText) {
-                    val wasEmpty = existingCode.isEmpty()
-                    viewModel.scannedCodes[firstTwo] = qrText
-                    triggerHapticFeedback()
+                if (viewModel.appState == AppState.ATTENDANCE_SCANNING) {
+                    if (!viewModel.presentStudentIndices.contains(firstTwo)) {
+                        viewModel.presentStudentIndices.add(firstTwo)
+                        triggerHapticFeedback()
 
-                    if (wasEmpty) {
-                        val currentScannedCount = viewModel.scannedCodes.count { it.isNotEmpty() }
-                        if (currentScannedCount >= viewModel.targetCount) {
-                            finishScanning()
+                        val totalStudents = viewModel.activeSessionClass?.students?.size ?: 0
+                        if (viewModel.presentStudentIndices.size >= totalStudents) {
+                            viewModel.isScanningFinished = true
+                            viewModel.navigateTo(AppState.SESSION_OPTIONS)
+                        }
+                    }
+                    return@runOnUiThread
+                }
+
+                // For Quiz scanning, skip if student is not present in session
+                if (viewModel.appState == AppState.SCANNING) {
+                    if (viewModel.activeSessionClass != null && !viewModel.presentStudentIndices.contains(firstTwo)) {
+                        return@runOnUiThread
+                    }
+
+                    val existingCode = viewModel.scannedCodes[firstTwo]
+                    if (existingCode != qrText) {
+                        val wasEmpty = existingCode.isEmpty()
+                        viewModel.scannedCodes[firstTwo] = qrText
+                        triggerHapticFeedback()
+
+                        if (wasEmpty) {
+                            val currentScannedCount = viewModel.scannedCodes.count { it.isNotEmpty() }
+                            if (currentScannedCount >= viewModel.targetCount) {
+                                finishScanning()
+                            }
                         }
                     }
                 }

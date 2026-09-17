@@ -47,9 +47,9 @@ fun SetupScreen(
                         Button(onClick = {
                             viewModel.selectedClass = cls
                             showClassDropdown = false
-                            input = cls.students.size.toString()
+                            input = (cls.students?.size ?: 0).toString()
                         }, modifier = Modifier.fillMaxWidth()) {
-                            Text(cls.title)
+                            Text(cls.title ?: "")
                         }
                     }
                     item {

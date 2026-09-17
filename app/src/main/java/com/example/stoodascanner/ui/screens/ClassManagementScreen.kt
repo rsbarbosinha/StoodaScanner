@@ -33,7 +33,7 @@ fun ClassManagementScreen(
         EditClassSubScreen(
             initialClass = viewModel.editingClass!!,
             onSave = { updatedClass ->
-                viewModel.classManager.deleteClass(viewModel.editingClass!!.title)
+                viewModel.classManager.deleteClass(viewModel.editingClass?.title ?: "")
                 viewModel.classManager.saveClass(updatedClass)
                 classes = viewModel.classManager.getAllClasses()
                 viewModel.editingClass = null
@@ -58,9 +58,10 @@ fun ClassManagementScreen(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(cls.title, modifier = Modifier.weight(1f), fontSize = 18.sp)
+                            val title = cls.title ?: ""
+                            Text(title, modifier = Modifier.weight(1f), fontSize = 18.sp)
                             
-                            IconButton(onClick = { onGeneratePdf(cls.students) }) {
+                            IconButton(onClick = { onGeneratePdf(cls.students ?: emptyList()) }) {
                                 Icon(
                                     imageVector = Icons.Filled.PictureAsPdf,
                                     contentDescription = "Generate PDF",
@@ -73,11 +74,12 @@ fun ClassManagementScreen(
                             }
                             
                             Button(onClick = {
+                                val titleToDelete = cls.title ?: ""
                                 AlertDialog.Builder(context)
                                     .setTitle(context.getString(R.string.delete_class_title))
-                                    .setMessage(context.getString(R.string.delete_class_message, cls.title))
+                                    .setMessage(context.getString(R.string.delete_class_message, titleToDelete))
                                     .setPositiveButton(R.string.yes) { _, _ ->
-                                        viewModel.classManager.deleteClass(cls.title)
+                                        viewModel.classManager.deleteClass(titleToDelete)
                                         classes = viewModel.classManager.getAllClasses()
                                     }
                                     .setNegativeButton(R.string.no, null)
@@ -107,8 +109,10 @@ fun EditClassSubScreen(
     onCancel: () -> Unit,
     onGeneratePdf: (List<String>) -> Unit
 ) {
-    var classTitle by remember { mutableStateOf(initialClass.title) }
-    val students = remember { mutableStateListOf<String>().apply { addAll(initialClass.students) } }
+    var classTitle by remember { mutableStateOf(initialClass.title ?: "") }
+    var classNickname by remember { mutableStateOf(initialClass.nickname ?: "") }
+    val studentsList = initialClass.students ?: emptyList()
+    val students = remember { mutableStateListOf<String>().apply { addAll(studentsList) } }
     var newName by remember { mutableStateOf("") }
 
     Column(
@@ -120,7 +124,8 @@ fun EditClassSubScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "${stringResource(R.string.editing)}: ${initialClass.title}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            val titleText = initialClass.title ?: ""
+            Text(text = "${stringResource(R.string.editing)}: $titleText", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             IconButton(onClick = { onGeneratePdf(students.toList()) }) {
                 Icon(
                     imageVector = Icons.Filled.PictureAsPdf,
@@ -134,6 +139,15 @@ fun EditClassSubScreen(
             value = classTitle,
             onValueChange = { classTitle = it },
             label = { Text(stringResource(R.string.class_title_hint)) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = classNickname,
+            onValueChange = { if (it.length <= 2) classNickname = it },
+            label = { Text(stringResource(R.string.class_nickname_hint)) },
             modifier = Modifier.fillMaxWidth()
         )
         
@@ -182,7 +196,7 @@ fun EditClassSubScreen(
                 Text(stringResource(R.string.cancel))
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { onSave(StudentClass(classTitle, students.toList())) }, modifier = Modifier.weight(1f)) {
+            Button(onClick = { onSave(StudentClass(classTitle, classNickname, students.toList())) }, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.save))
             }
         }

@@ -106,10 +106,11 @@ fun ClassItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    val initials = if (studentClass.title.length >= 2) {
-        studentClass.title.substring(0, 2).uppercase()
+    val title = studentClass.title ?: ""
+    val initials = if (title.length >= 2) {
+        title.substring(0, 2).uppercase()
     } else {
-        studentClass.title.uppercase()
+        title.uppercase()
     }
 
     Column(
@@ -137,7 +138,7 @@ fun ClassItem(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = studentClass.title,
+            text = title,
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
             maxLines = 1,

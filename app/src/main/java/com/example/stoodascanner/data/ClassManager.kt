@@ -6,8 +6,9 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 
 data class StudentClass(
-    val title: String,
-    val students: List<String> // Index corresponds to QR ID (0-63)
+    val title: String? = "",
+    val nickname: String? = "",
+    val students: List<String>? = emptyList() // Index corresponds to QR ID (0-63)
 )
 
 class ClassManager(private val context: Context) {
@@ -26,7 +27,14 @@ class ClassManager(private val context: Context) {
         if (!classesFile.exists()) return emptyList()
         val type = object : com.google.gson.reflect.TypeToken<List<StudentClass>>() {}.type
         return try {
-            gson.fromJson(classesFile.readText(), type)
+            val list: List<StudentClass>? = gson.fromJson(classesFile.readText(), type)
+            list?.map { 
+                it.copy(
+                    title = it.title ?: "",
+                    nickname = it.nickname ?: "",
+                    students = it.students ?: emptyList()
+                )
+            } ?: emptyList()
         } catch (_: Exception) {
             emptyList()
         }

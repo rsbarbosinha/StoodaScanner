@@ -1,4 +1,4 @@
-package com.example.stoodascanner.ui.screens
+package com.example.stoodascanner
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -36,6 +36,7 @@ fun ClassCreationScreen(
     onGeneratePdf: (List<String>) -> Unit
 ) {
     var classTitle by remember { mutableStateOf("") }
+    var classNickname by remember { mutableStateOf("") }
     var nameColumnIndex by remember { mutableStateOf("1") }
     val manualNames = remember { mutableStateListOf<String>() }
     var newName by remember { mutableStateOf("") }
@@ -66,7 +67,7 @@ fun ClassCreationScreen(
         } else {
             stringResource(R.string.custom_creation)
         }
-        
+
         Text(text = titleText, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
         
@@ -77,44 +78,51 @@ fun ClassCreationScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        if (viewModel.creationType == CreationType.IMPORT) {
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
+        OutlinedTextField(
+            value = classNickname,
+            onValueChange = { if (it.length <= 2) classNickname = it },
+            label = { Text(stringResource(R.string.class_nickname_hint)) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = nameColumnIndex,
+            onValueChange = { nameColumnIndex = it },
+            label = { Text(stringResource(R.string.name_column_index)) },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Button(
+            onClick = { filePickerLauncher.launch("*/*") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.upload_file_csv_xlsx))
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
-                value = nameColumnIndex,
-                onValueChange = { nameColumnIndex = it },
-                label = { Text(stringResource(R.string.name_column_index)) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                value = newName,
+                onValueChange = { newName = it },
+                label = { Text(stringResource(R.string.manual_name_entry)) },
+                modifier = Modifier.weight(1f)
             )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Button(
-                onClick = { filePickerLauncher.launch("*/*") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.upload_file_csv_xlsx))
-            }
-        } else {
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(
-                    value = newName,
-                    onValueChange = { newName = it },
-                    label = { Text(stringResource(R.string.manual_name_entry)) },
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = {
-                    if (newName.isNotBlank() && manualNames.size < 64) {
-                        manualNames.add(newName.trim())
-                        newName = ""
-                    }
-                }) {
-                    Text(stringResource(R.string.add))
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = {
+                if (newName.isNotBlank() && manualNames.size < 64) {
+                    manualNames.add(newName.trim())
+                    newName = ""
                 }
+            }) {
+                Text(stringResource(R.string.add))
             }
         }
 
@@ -145,7 +153,7 @@ fun ClassCreationScreen(
                 } else if (manualNames.isEmpty()) {
                     Toast.makeText(context, context.getString(R.string.error_add_student), Toast.LENGTH_SHORT).show()
                 } else {
-                    val newClass = StudentClass(classTitle, manualNames.toList())
+                    val newClass = StudentClass(classTitle, classNickname, manualNames.toList())
                     viewModel.classManager.saveClass(newClass)
                     
                     onGeneratePdf(manualNames.toList())
