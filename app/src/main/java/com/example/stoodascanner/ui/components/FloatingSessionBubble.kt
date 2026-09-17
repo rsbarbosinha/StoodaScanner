@@ -24,15 +24,23 @@ fun FloatingSessionBubble(
 ) {
     val title = studentClass.title ?: ""
     val nickname = (studentClass.nickname ?: "").ifEmpty { 
-        if (title.length >= 2) title.substring(0, 2) else title
+        if (title.length >= 3) {
+            title.substring(0, 3)
+        } else if (title.length >= 2) {
+            title.substring(0, 2)
+        } else {
+            title
+        }
     }.uppercase()
+
+    val bubbleColor = if (studentClass.color != null) Color(studentClass.color) else MaterialTheme.colorScheme.primary
 
     Box(
         modifier = Modifier
             .padding(16.dp)
             .size(60.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary)
+            .background(bubbleColor)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {

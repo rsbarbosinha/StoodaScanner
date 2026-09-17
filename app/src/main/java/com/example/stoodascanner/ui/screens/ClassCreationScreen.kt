@@ -5,14 +5,22 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +45,7 @@ fun ClassCreationScreen(
 ) {
     var classTitle by remember { mutableStateOf("") }
     var classNickname by remember { mutableStateOf("") }
+    var selectedColor by remember { mutableStateOf<Int?>(null) }
     var nameColumnIndex by remember { mutableStateOf("1") }
     val manualNames = remember { mutableStateListOf<String>() }
     var newName by remember { mutableStateOf("") }
@@ -82,12 +91,61 @@ fun ClassCreationScreen(
 
         OutlinedTextField(
             value = classNickname,
-            onValueChange = { if (it.length <= 2) classNickname = it },
+            onValueChange = { if (it.length <= 3) classNickname = it },
             label = { Text(stringResource(R.string.class_nickname_hint)) },
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(text = "Choose Team Color:", fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
+        
+        val colors = listOf(
+            Color(0xFFE53935), // Red
+            Color(0xFFD81B60), // Pink
+            Color(0xFF8E24AA), // Purple
+            Color(0xFF5E35B1), // Deep Purple
+            Color(0xFF3949AB), // Indigo
+            Color(0xFF1E88E5), // Blue
+            Color(0xFF039BE5), // Light Blue
+            Color(0xFF00ACC1), // Cyan
+            Color(0xFF00897B), // Teal
+            Color(0xFF43A047), // Green
+            Color(0xFF7CB342), // Light Green
+            Color(0xFFC0CA33), // Lime
+            Color(0xFFFDD835), // Yellow
+            Color(0xFFFFB300), // Amber
+            Color(0xFFFB8C00), // Orange
+            Color(0xFFF4511E), // Deep Orange
+            Color(0xFF6D4C41), // Brown
+            Color(0xFF757575), // Grey
+            Color(0xFF546E7A)  // Blue Grey
+        )
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 4.dp)
+        ) {
+            items(colors) { color ->
+                val colorInt = color.toArgb()
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        .border(
+                            width = if (selectedColor == colorInt) 3.dp else 1.dp,
+                            color = if (selectedColor == colorInt) MaterialTheme.colorScheme.primary else Color.LightGray,
+                            shape = CircleShape
+                        )
+                        .clickable { selectedColor = colorInt }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = nameColumnIndex,
@@ -153,7 +211,7 @@ fun ClassCreationScreen(
                 } else if (manualNames.isEmpty()) {
                     Toast.makeText(context, context.getString(R.string.error_add_student), Toast.LENGTH_SHORT).show()
                 } else {
-                    val newClass = StudentClass(classTitle, classNickname, manualNames.toList())
+                    val newClass = StudentClass(classTitle, classNickname, selectedColor, manualNames.toList())
                     viewModel.classManager.saveClass(newClass)
                     
                     onGeneratePdf(manualNames.toList())

@@ -8,6 +8,7 @@ import java.io.File
 data class StudentClass(
     val title: String? = "",
     val nickname: String? = "",
+    val color: Int? = null,
     val students: List<String>? = emptyList() // Index corresponds to QR ID (0-63)
 )
 
@@ -32,6 +33,7 @@ class ClassManager(private val context: Context) {
                 it.copy(
                     title = it.title ?: "",
                     nickname = it.nickname ?: "",
+                    color = it.color,
                     students = it.students ?: emptyList()
                 )
             } ?: emptyList()

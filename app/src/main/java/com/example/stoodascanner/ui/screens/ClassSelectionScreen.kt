@@ -107,11 +107,18 @@ fun ClassItem(
     onLongClick: () -> Unit
 ) {
     val title = studentClass.title ?: ""
-    val initials = if (title.length >= 2) {
-        title.substring(0, 2).uppercase()
-    } else {
-        title.uppercase()
-    }
+    val nickname = (studentClass.nickname ?: "").ifEmpty { 
+        if (title.length >= 3) {
+            title.substring(0, 3)
+        } else if (title.length >= 2) {
+            title.substring(0, 2)
+        } else {
+            title
+        }
+    }.uppercase()
+
+    val itemColor = if (studentClass.color != null) Color(studentClass.color) else MaterialTheme.colorScheme.primaryContainer
+    val contentColor = if (studentClass.color != null) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -126,14 +133,14 @@ fun ClassItem(
             modifier = Modifier
                 .size(80.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(itemColor),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = initials,
-                fontSize = 32.sp,
+                text = nickname,
+                fontSize = if (nickname.length > 2) 24.sp else 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = contentColor
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
