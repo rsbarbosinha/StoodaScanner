@@ -17,8 +17,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.stoodascanner.R
+import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 import kotlinx.coroutines.delay
+
+@Preview(showBackground = true)
+@Composable
+fun SplashScreenPreview() {
+    StoodaScannerTheme {
+        SplashScreen(onFinished = {})
+    }
+}
 
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {

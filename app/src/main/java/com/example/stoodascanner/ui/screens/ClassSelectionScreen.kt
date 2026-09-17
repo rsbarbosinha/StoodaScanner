@@ -22,18 +22,62 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.stoodascanner.data.AppState
 import com.example.stoodascanner.viewModel.MainViewModel
 import com.example.stoodascanner.R
 import com.example.stoodascanner.data.StudentClass
+import com.example.stoodascanner.ui.Mocks
+import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 
-@OptIn(ExperimentalFoundationApi::class)
+@Preview(showBackground = true)
+@Composable
+fun ClassSelectionScreenPreview() {
+    StoodaScannerTheme {
+        ClassSelectionScreenContent(
+            classes = Mocks.mockClasses,
+            isDebugMode = false,
+            onDebugToggle = {},
+            onClassClick = {},
+            onClassLongClick = {},
+            onAddClassClick = {}
+        )
+    }
+}
+
 @Composable
 fun ClassSelectionScreen(
     viewModel: MainViewModel,
     onStartScan: () -> Unit
 ) {
     val classes = viewModel.classManager.getAllClasses()
+    
+    ClassSelectionScreenContent(
+        classes = classes,
+        isDebugMode = viewModel.isDebugMode,
+        onDebugToggle = { viewModel.isDebugMode = !viewModel.isDebugMode },
+        onClassClick = { 
+            viewModel.selectClass(it)
+            onStartScan()
+        },
+        onClassLongClick = {
+            viewModel.editingClass = it
+            viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
+        },
+        onAddClassClick = { viewModel.navigateTo(AppState.CLASS_CREATION_CHOICE) }
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ClassSelectionScreenContent(
+    classes: List<StudentClass>,
+    isDebugMode: Boolean,
+    onDebugToggle: () -> Unit,
+    onClassClick: (StudentClass) -> Unit,
+    onClassLongClick: (StudentClass) -> Unit,
+    onAddClassClick: () -> Unit
+) {
     var clickCount by remember { mutableIntStateOf(0) }
     var lastClickTime by remember { mutableLongStateOf(0L) }
 
@@ -56,13 +100,13 @@ fun ClassSelectionScreen(
                     }
                     lastClickTime = currentTime
                     if (clickCount >= 5) {
-                        viewModel.isDebugMode = !viewModel.isDebugMode
+                        onDebugToggle()
                         clickCount = 0
                     }
                 }
         )
 
-        if (viewModel.isDebugMode) {
+        if (isDebugMode) {
             Text(
                 text = stringResource(R.string.debug_mode_on),
                 color = Color.Red,
@@ -80,19 +124,13 @@ fun ClassSelectionScreen(
             items(classes) { studentClass ->
                 ClassItem(
                     studentClass = studentClass,
-                    onClick = {
-                        viewModel.selectClass(studentClass)
-                        onStartScan()
-                    },
-                    onLongClick = {
-                        viewModel.editingClass = studentClass
-                        viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
-                    }
+                    onClick = { onClassClick(studentClass) },
+                    onLongClick = { onClassLongClick(studentClass) }
                 )
             }
             item {
                 AddClassItem(
-                    onClick = { viewModel.navigateTo(AppState.CLASS_CREATION_CHOICE) }
+                    onClick = onAddClassClick
                 )
             }
         }

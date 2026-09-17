@@ -24,10 +24,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.stoodascanner.data.AppState
 import com.example.stoodascanner.viewModel.MainViewModel
 import com.example.stoodascanner.R
 import com.example.stoodascanner.data.StudentClass
+import com.example.stoodascanner.ui.Mocks
+import com.example.stoodascanner.ui.theme.StoodaScannerTheme
+
+@Preview(showBackground = true)
+@Composable
+fun EditClassSubScreenPreview() {
+    StoodaScannerTheme {
+        EditClassSubScreen(
+            initialClass = Mocks.mockStudentClass,
+            onSave = {},
+            onCancel = {},
+            onGeneratePdf = {}
+        )
+    }
+}
 
 @Composable
 fun ClassManagementScreen(

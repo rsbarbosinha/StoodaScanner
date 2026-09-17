@@ -9,7 +9,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.stoodascanner.R
+import com.example.stoodascanner.data.StudentClass
+import com.example.stoodascanner.ui.Mocks
+import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 import com.example.stoodascanner.viewModel.MainViewModel
 
 @Composable
@@ -18,6 +22,21 @@ fun SessionOptionsScreen(
 ) {
     val activeClass = viewModel.activeSessionClass ?: return
 
+    SessionOptionsScreenContent(
+        activeClass = activeClass,
+        onAttendanceClick = { viewModel.startAttendanceCheck() },
+        onQuizClick = { viewModel.startQuiz() },
+        onFinishSessionClick = { viewModel.finishSession() }
+    )
+}
+
+@Composable
+fun SessionOptionsScreenContent(
+    activeClass: StudentClass,
+    onAttendanceClick: () -> Unit,
+    onQuizClick: () -> Unit,
+    onFinishSessionClick: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -37,7 +56,7 @@ fun SessionOptionsScreen(
         )
 
         Button(
-            onClick = { viewModel.startAttendanceCheck() },
+            onClick = onAttendanceClick,
             modifier = Modifier.fillMaxWidth().height(60.dp),
             shape = MaterialTheme.shapes.medium
         ) {
@@ -47,7 +66,7 @@ fun SessionOptionsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { viewModel.startQuiz() },
+            onClick = onQuizClick,
             modifier = Modifier.fillMaxWidth().height(60.dp),
             shape = MaterialTheme.shapes.medium
         ) {
@@ -57,12 +76,25 @@ fun SessionOptionsScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedButton(
-            onClick = { viewModel.finishSession() },
+            onClick = onFinishSessionClick,
             modifier = Modifier.fillMaxWidth().height(60.dp),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
         ) {
             Text(stringResource(R.string.finish_section), fontSize = 18.sp)
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SessionOptionsScreenPreview() {
+    StoodaScannerTheme {
+        SessionOptionsScreenContent(
+            activeClass = Mocks.mockStudentClass,
+            onAttendanceClick = {},
+            onQuizClick = {},
+            onFinishSessionClick = {}
+        )
     }
 }

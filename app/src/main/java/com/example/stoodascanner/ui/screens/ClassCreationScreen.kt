@@ -27,10 +27,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.stoodascanner.data.AppState
 import com.example.stoodascanner.viewModel.MainViewModel
 import com.example.stoodascanner.R
 import com.example.stoodascanner.data.StudentClass
+import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 import com.example.stoodascanner.utils.StudentImportParser
 import com.example.stoodascanner.viewModel.CreationType
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +44,22 @@ import kotlinx.coroutines.withContext
 fun ClassCreationScreen(
     viewModel: MainViewModel,
     onGeneratePdf: (List<String>) -> Unit
+) {
+    ClassCreationScreenContent(
+        creationType = viewModel.creationType,
+        onSave = { newClass ->
+            viewModel.classManager.saveClass(newClass)
+            onGeneratePdf(newClass.students ?: emptyList())
+            viewModel.navigateTo(AppState.CLASS_SELECTION)
+        }
+    )
+}
+
+@SuppressLint("DefaultLocale")
+@Composable
+fun ClassCreationScreenContent(
+    creationType: CreationType,
+    onSave: (StudentClass) -> Unit
 ) {
     var classTitle by remember { mutableStateOf("") }
     var classNickname by remember { mutableStateOf("") }
@@ -71,7 +89,7 @@ fun ClassCreationScreen(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val titleText = if (viewModel.creationType == CreationType.IMPORT) {
+        val titleText = if (creationType == CreationType.IMPORT) {
             stringResource(R.string.import_via_spreadsheet)
         } else {
             stringResource(R.string.custom_creation)
@@ -147,40 +165,40 @@ fun ClassCreationScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = nameColumnIndex,
-            onValueChange = { nameColumnIndex = it },
-            label = { Text(stringResource(R.string.name_column_index)) },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Button(
-            onClick = { filePickerLauncher.launch("*/*") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.upload_file_csv_xlsx))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        if (creationType == CreationType.IMPORT) {
             OutlinedTextField(
-                value = newName,
-                onValueChange = { newName = it },
-                label = { Text(stringResource(R.string.manual_name_entry)) },
-                modifier = Modifier.weight(1f)
+                value = nameColumnIndex,
+                onValueChange = { nameColumnIndex = it },
+                label = { Text(stringResource(R.string.name_column_index)) },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {
-                if (newName.isNotBlank() && manualNames.size < 64) {
-                    manualNames.add(newName.trim())
-                    newName = ""
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Button(
+                onClick = { filePickerLauncher.launch("*/*") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.upload_file_csv_xlsx))
+            }
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    label = { Text(stringResource(R.string.manual_name_entry)) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = {
+                    if (newName.isNotBlank() && manualNames.size < 64) {
+                        manualNames.add(newName.trim())
+                        newName = ""
+                    }
+                }) {
+                    Text(stringResource(R.string.add))
                 }
-            }) {
-                Text(stringResource(R.string.add))
             }
         }
 
@@ -212,15 +230,28 @@ fun ClassCreationScreen(
                     Toast.makeText(context, context.getString(R.string.error_add_student), Toast.LENGTH_SHORT).show()
                 } else {
                     val newClass = StudentClass(classTitle, classNickname, selectedColor, manualNames.toList())
-                    viewModel.classManager.saveClass(newClass)
-                    
-                    onGeneratePdf(manualNames.toList())
-                    viewModel.navigateTo(AppState.CLASS_SELECTION)
+                    onSave(newClass)
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(stringResource(R.string.save_and_generate_qr_pdf))
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ClassCreationScreenCustomPreview() {
+    StoodaScannerTheme {
+        ClassCreationScreenContent(creationType = CreationType.CUSTOM, onSave = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ClassCreationScreenImportPreview() {
+    StoodaScannerTheme {
+        ClassCreationScreenContent(creationType = CreationType.IMPORT, onSave = {})
     }
 }

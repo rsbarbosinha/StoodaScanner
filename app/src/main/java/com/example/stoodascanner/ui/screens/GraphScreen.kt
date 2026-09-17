@@ -15,10 +15,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.stoodascanner.scanner.QRDecoder
 import com.example.stoodascanner.R
 import com.example.stoodascanner.data.StudentClass
+import com.example.stoodascanner.ui.Mocks
 import com.example.stoodascanner.ui.components.ResultGraphView
+import com.example.stoodascanner.ui.theme.StoodaScannerTheme
+
+@Preview(showBackground = true)
+@Composable
+fun GraphScreenPreview() {
+    StoodaScannerTheme {
+        GraphScreen(
+            scannedCodes = Mocks.mockScannedCodes,
+            selectedClass = Mocks.mockStudentClass,
+            onRestart = {}
+        )
+    }
+}
 
 @Composable
 fun GraphScreen(

@@ -18,13 +18,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.stoodascanner.R
 import com.example.stoodascanner.data.AppState
+import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 import com.example.stoodascanner.viewModel.CreationType
 import com.example.stoodascanner.viewModel.MainViewModel
 
 @Composable
 fun ClassCreationChoiceScreen(viewModel: MainViewModel) {
+    ClassCreationChoiceScreenContent(
+        onChoiceSelected = { type ->
+            viewModel.creationType = type
+            viewModel.navigateTo(AppState.CLASS_CREATION)
+        }
+    )
+}
+
+@Composable
+fun ClassCreationChoiceScreenContent(
+    onChoiceSelected: (CreationType) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -47,21 +61,23 @@ fun ClassCreationChoiceScreen(viewModel: MainViewModel) {
             ChoiceItem(
                 title = stringResource(R.string.import_via_spreadsheet),
                 icon = Icons.Default.Description,
-                onClick = {
-                    viewModel.creationType = CreationType.IMPORT
-                    viewModel.navigateTo(AppState.CLASS_CREATION)
-                }
+                onClick = { onChoiceSelected(CreationType.IMPORT) }
             )
 
             ChoiceItem(
                 title = stringResource(R.string.custom_creation),
                 icon = Icons.Default.Edit,
-                onClick = {
-                    viewModel.creationType = CreationType.CUSTOM
-                    viewModel.navigateTo(AppState.CLASS_CREATION)
-                }
+                onClick = { onChoiceSelected(CreationType.CUSTOM) }
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ClassCreationChoiceScreenPreview() {
+    StoodaScannerTheme {
+        ClassCreationChoiceScreenContent(onChoiceSelected = {})
     }
 }
 

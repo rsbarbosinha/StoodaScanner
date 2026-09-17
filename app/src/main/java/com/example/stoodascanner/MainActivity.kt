@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
@@ -79,16 +81,18 @@ class MainActivity : ComponentActivity() {
                             val missingCount = if (viewModel.attendanceTaken) {
                                 students.size - viewModel.presentStudentIndices.size
                             } else 0
-                            Box(modifier = Modifier.align(Alignment.TopEnd)) {
-                                FloatingSessionBubble(
-                                    studentClass = activeClass,
-                                    missingCount = missingCount,
-                                    onClick = {
-                                        viewModel.editingClass = activeClass
-                                        viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
-                                    }
-                                )
-                            }
+                            
+                            FloatingSessionBubble(
+                                studentClass = activeClass,
+                                missingCount = missingCount,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(16.dp, 16.dp, 24.dp, 24.dp), // Controlled from here
+                                onClick = {
+                                    viewModel.editingClass = activeClass
+                                    viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
+                                }
+                            )
                         }
                     }
                 }
