@@ -3,7 +3,7 @@ package com.example.stoodascanner.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,9 +37,9 @@ fun FloatingSessionBubble(
 
     Box(
         modifier = Modifier
-            .padding(16.dp)
-            .size(60.dp)
-            .clip(CircleShape)
+            .padding(16.dp, 16.dp, 20.dp, 20.dp)
+            .size(64.dp)
+            .clip(RoundedCornerShape(20.dp))
             .background(bubbleColor)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
@@ -55,9 +55,11 @@ fun FloatingSessionBubble(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .background(Color.Red),
+                    .defaultMinSize(minWidth = 22.dp, minHeight = 22.dp)
+                    .padding(2.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(Color(0xFFD32F2F))
+                    .padding(horizontal = 5.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
