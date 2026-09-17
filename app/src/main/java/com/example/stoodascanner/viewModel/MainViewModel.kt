@@ -96,6 +96,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             AppState.CLASS_MANAGEMENT -> {
                 if (editingClass != null) {
                     editingClass = null
+                    if (activeSessionClass != null) {
+                        appState = AppState.SESSION_OPTIONS
+                    } else {
+                        appState = AppState.CLASS_SELECTION
+                    }
                 } else {
                     appState = AppState.CLASS_SELECTION
                 }

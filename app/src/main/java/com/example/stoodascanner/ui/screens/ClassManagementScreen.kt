@@ -35,10 +35,31 @@ fun ClassManagementScreen(
             onSave = { updatedClass ->
                 viewModel.classManager.deleteClass(viewModel.editingClass?.title ?: "")
                 viewModel.classManager.saveClass(updatedClass)
+                
+                // If we are currently editing the active session class, update it in the view model session state
+                if (viewModel.activeSessionClass?.title == viewModel.editingClass?.title) {
+                    viewModel.activeSessionClass = updatedClass
+                    viewModel.selectedClass = updatedClass
+                }
+                
                 classes = viewModel.classManager.getAllClasses()
                 viewModel.editingClass = null
+                
+                // Check if active session is ongoing. If so, return straight to the session options screen
+                if (viewModel.activeSessionClass != null) {
+                    viewModel.navigateTo(AppState.SESSION_OPTIONS)
+                } else {
+                    viewModel.navigateTo(AppState.CLASS_SELECTION)
+                }
             },
-            onCancel = { viewModel.editingClass = null },
+            onCancel = { 
+                viewModel.editingClass = null
+                if (viewModel.activeSessionClass != null) {
+                    viewModel.navigateTo(AppState.SESSION_OPTIONS)
+                } else {
+                    viewModel.navigateTo(AppState.CLASS_SELECTION)
+                }
+            },
             onGeneratePdf = onGeneratePdf
         )
     } else {
