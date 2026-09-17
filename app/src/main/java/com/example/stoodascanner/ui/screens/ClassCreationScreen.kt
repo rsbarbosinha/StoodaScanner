@@ -1,4 +1,4 @@
-package com.example.stoodascanner
+package com.example.stoodascanner.ui.screens
 
 import android.annotation.SuppressLint
 import android.net.Uri

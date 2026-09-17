@@ -37,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.stoodascanner.data.AppState
 import com.example.stoodascanner.scanner.CameraManager
+import com.example.stoodascanner.ui.components.FloatingSessionBubble
 import com.example.stoodascanner.ui.screens.ClassCreationChoiceScreen
 import com.example.stoodascanner.ui.screens.ClassCreationScreen
 import com.example.stoodascanner.ui.screens.ClassManagementScreen
@@ -44,6 +45,7 @@ import com.example.stoodascanner.ui.screens.ClassSelectionScreen
 import com.example.stoodascanner.ui.screens.GraphScreen
 import com.example.stoodascanner.ui.screens.ResultsScreen
 import com.example.stoodascanner.ui.screens.ScanningScreen
+import com.example.stoodascanner.ui.screens.SessionOptionsScreen
 import com.example.stoodascanner.ui.screens.SplashScreen
 import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 import com.example.stoodascanner.utils.QRGenerator
