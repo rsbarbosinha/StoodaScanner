@@ -273,15 +273,8 @@ class MainActivity : ComponentActivity() {
 
     private fun handleQrCodeFound(qrText: String, imageWidth: Int, imageHeight: Int, rawX: Int, rawY: Int, previewView: PreviewView, onAddPoint: (Float, Float) -> Unit) {
         if (viewModel.isScanningFinished) return
-        if (!qrText.matches(Regex("\\d{4}"))) return
-
-        val firstDigit = qrText.substring(0, 1).toInt()
-        val secondDigit = qrText.substring(1, 2).toInt()
-        val thirdDigit = qrText.substring(2, 3).toInt()
-        val forthDigit = qrText.substring(3, 4).toInt()
-        val firstTwo = qrText.substring(0, 2).toInt()
-
-        if (firstTwo !in 0..63 || thirdDigit !in 0..5 || forthDigit != (firstDigit+secondDigit+thirdDigit) % 10) return
+        val parsed = com.example.stoodascanner.scanner.StoodaProtocol.parse(qrText) ?: return
+        val firstTwo = parsed.studentIndex
 
         runOnUiThread {
             if (viewModel.isScanningFinished) return@runOnUiThread

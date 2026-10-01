@@ -19,24 +19,7 @@ object StudentImportParser {
             
             if (mimeType == "text/comma-separated-values" || mimeType == "text/csv" || uri.path?.endsWith(".csv") == true) {
                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                    csvReader().open(inputStream) {
-                        readAllAsSequence().forEach { row ->
-                            if (names.size >= 64) return@forEach
-                            if (targetColIndex >= 0 && targetColIndex < row.size) {
-                                val value = row[targetColIndex].trim()
-                                if (value.isNotEmpty()) {
-                                    if (!headerChecked) {
-                                        headerChecked = true
-                                        if (value.contains(" ")) {
-                                            names.add(value)
-                                        }
-                                    } else {
-                                        names.add(value)
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    return parseCsvStream(inputStream, targetColIndex)
                 }
             } else {
                 val sharedStrings = mutableListOf<String>()
@@ -170,6 +153,30 @@ object StudentImportParser {
             if (names.size >= 64) break
             eventType = parser.next()
         }
+    }
+
+    fun parseCsvStream(inputStream: InputStream, targetColIndex: Int): List<String> {
+        val names = mutableListOf<String>()
+        var headerChecked = false
+        csvReader().open(inputStream) {
+            readAllAsSequence().forEach { row ->
+                if (names.size >= 64) return@forEach
+                if (targetColIndex >= 0 && targetColIndex < row.size) {
+                    val value = row[targetColIndex].trim()
+                    if (value.isNotEmpty()) {
+                        if (!headerChecked) {
+                            headerChecked = true
+                            if (value.contains(" ")) {
+                                names.add(value)
+                            }
+                        } else {
+                            names.add(value)
+                        }
+                    }
+                }
+            }
+        }
+        return names.take(64)
     }
 
     fun indexToColLetter(index: Int): String {

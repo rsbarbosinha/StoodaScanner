@@ -13,6 +13,7 @@ import android.provider.MediaStore
 import android.widget.Toast
 import zxingcpp.BarcodeReader
 import zxingcpp.BarcodeWriter
+import com.example.stoodascanner.scanner.StoodaProtocol
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -33,13 +34,8 @@ class QRGenerator(private val context: Context) {
                     val studentName = inputNames[id]
                     
                     // Generate all 6 QR codes for this student (A, B, C, D, E, ?)
-                    val studentQrCodes = mutableListOf<String>()
-                    for (type in 0..5) {
-                        val firstDigit = id / 10
-                        val secondDigit = id % 10
-                        val thirdDigit = type
-                        val checksum = (firstDigit + secondDigit + thirdDigit) % 10
-                        studentQrCodes.add("$firstDigit$secondDigit$thirdDigit$checksum")
+                    val studentQrCodes = (0..5).map { type ->
+                        StoodaProtocol.encode(id, type)
                     }
 
                     // Front Side (QR Codes)

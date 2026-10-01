@@ -26,15 +26,7 @@ class QRDecoder(private val studentClass: StudentClass? = null) {
         return try {
             val thirdDigit = qrCode.substring(2, 3).toInt()
 
-            val translatedType = when (thirdDigit) {
-                0 -> "A"
-                1 -> "B"
-                2 -> "C"
-                3 -> "D"
-                4 -> "E"
-                5 -> "?"
-                else -> thirdDigit.toString()
-            }
+            val translatedType = StoodaProtocol.answerTypeToLetter(thirdDigit)
 
             "$translatedId - $translatedType"
         } catch (_: Exception) {
