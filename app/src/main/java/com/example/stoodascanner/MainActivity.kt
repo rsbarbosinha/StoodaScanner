@@ -42,12 +42,13 @@ import com.example.stoodascanner.scanner.CameraManager
 import com.example.stoodascanner.ui.components.FloatingSessionBubble
 import com.example.stoodascanner.ui.screens.ClassCreationChoiceScreen
 import com.example.stoodascanner.ui.screens.ClassCreationScreen
-import com.example.stoodascanner.ui.screens.ClassManagementScreen
+import com.example.stoodascanner.ui.screens.ClassEditingScreen
 import com.example.stoodascanner.ui.screens.ClassSelectionScreen
 import com.example.stoodascanner.ui.screens.GraphScreen
 import com.example.stoodascanner.ui.screens.ResultsScreen
 import com.example.stoodascanner.ui.screens.ScanningScreen
 import com.example.stoodascanner.ui.screens.SessionOptionsScreen
+import com.example.stoodascanner.ui.screens.ManualAttendanceScreen
 import com.example.stoodascanner.ui.screens.SplashScreen
 import com.example.stoodascanner.ui.theme.StoodaScannerTheme
 import com.example.stoodascanner.utils.QRGenerator
@@ -90,7 +91,7 @@ class MainActivity : ComponentActivity() {
                                     .padding(16.dp, 16.dp, 24.dp, 24.dp), // Controlled from here
                                 onClick = {
                                     viewModel.editingClass = activeClass
-                                    viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
+                                    viewModel.navigateTo(AppState.CLASS_EDITING)
                                 }
                             )
                         }
@@ -142,8 +143,8 @@ class MainActivity : ComponentActivity() {
                     onGeneratePdf = { studentNames -> checkStoragePermissionAndGenerate(studentNames) }
                 )
             }
-            composable(AppState.CLASS_MANAGEMENT.name) {
-                ClassManagementScreen(
+            composable(AppState.CLASS_EDITING.name) {
+                ClassEditingScreen(
                     viewModel = viewModel,
                     onGeneratePdf = { studentNames -> checkStoragePermissionAndGenerate(studentNames) }
                 )
@@ -195,6 +196,12 @@ class MainActivity : ComponentActivity() {
                         cameraManager.startCamera(allStudents.size)
                         cameraManager
                     }
+                )
+            }
+            composable(AppState.MANUAL_ATTENDANCE.name) {
+                ManualAttendanceScreen(
+                    viewModel = viewModel,
+                    onBack = { viewModel.navigateTo(AppState.SESSION_OPTIONS) }
                 )
             }
             composable(AppState.SCANNING.name) {
@@ -250,14 +257,14 @@ class MainActivity : ComponentActivity() {
                     scannedCodes = viewModel.scannedCodes,
                     selectedClass = viewModel.selectedClass,
                     onShowGraph = { viewModel.navigateTo(AppState.GRAPH) },
-                    onRestart = { viewModel.showSetupLayout() }
+                    onBackToSession = { viewModel.navigateTo(AppState.SESSION_OPTIONS) }
                 )
             }
             composable(AppState.GRAPH.name) {
                 GraphScreen(
                     scannedCodes = viewModel.scannedCodes,
                     selectedClass = viewModel.selectedClass,
-                    onRestart = { viewModel.showSetupLayout() }
+                    onBackToSession = { viewModel.navigateTo(AppState.SESSION_OPTIONS) }
                 )
             }
         }
@@ -266,7 +273,8 @@ class MainActivity : ComponentActivity() {
         BackHandler {
             viewModel.handleBackPress(
                 onDiscard = { showDiscardResultsDialog() },
-                onExit = { showExitDialog() }
+                onExit = { showExitDialog() },
+                onCloseSession = { showCloseSessionDialog() }
             )
         }
     }
@@ -336,6 +344,15 @@ class MainActivity : ComponentActivity() {
             .setTitle(getString(R.string.exit_app_title))
             .setMessage(getString(R.string.exit_app_message))
             .setPositiveButton(getString(R.string.yes)) { _, _ -> finish() }
+            .setNegativeButton(getString(R.string.no), null)
+            .show()
+    }
+
+    private fun showCloseSessionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.close_session_title))
+            .setMessage(getString(R.string.close_session_message))
+            .setPositiveButton(getString(R.string.yes)) { _, _ -> viewModel.finishSession() }
             .setNegativeButton(getString(R.string.no), null)
             .show()
     }

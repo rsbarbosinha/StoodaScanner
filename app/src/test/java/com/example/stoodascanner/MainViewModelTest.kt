@@ -156,8 +156,9 @@ class MainViewModelTest {
     @Test
     fun testHandleBackPressFromSessionOptionsNavigatesToClassSelection() {
         viewModel.navigateTo(AppState.SESSION_OPTIONS)
-        viewModel.handleBackPress(onExit = {}, onDiscard = {})
-        assertEquals(AppState.CLASS_SELECTION, viewModel.appState)
+        var closeSessionCalled = false
+        viewModel.handleBackPress(onExit = {}, onDiscard = {}, onCloseSession = { closeSessionCalled = true })
+        assertTrue(closeSessionCalled)
     }
 
     @Test
@@ -182,7 +183,7 @@ class MainViewModelTest {
     @Test
     fun testHandleBackPressFromClassManagement() {
         // Case 1: editingClass with active session
-        viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
+        viewModel.navigateTo(AppState.CLASS_EDITING)
         viewModel.editingClass = testClass
         viewModel.activeSessionClass = testClass
         viewModel.handleBackPress(onExit = {}, onDiscard = {})
@@ -190,7 +191,7 @@ class MainViewModelTest {
         assertEquals(AppState.SESSION_OPTIONS, viewModel.appState)
 
         // Case 2: editingClass without active session
-        viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
+        viewModel.navigateTo(AppState.CLASS_EDITING)
         viewModel.editingClass = testClass
         viewModel.activeSessionClass = null
         viewModel.handleBackPress(onExit = {}, onDiscard = {})
@@ -198,7 +199,7 @@ class MainViewModelTest {
         assertEquals(AppState.CLASS_SELECTION, viewModel.appState)
 
         // Case 3: no editingClass
-        viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
+        viewModel.navigateTo(AppState.CLASS_EDITING)
         viewModel.editingClass = null
         viewModel.handleBackPress(onExit = {}, onDiscard = {})
         assertEquals(AppState.CLASS_SELECTION, viewModel.appState)

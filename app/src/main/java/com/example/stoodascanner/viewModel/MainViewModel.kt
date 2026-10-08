@@ -83,17 +83,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         isScanningFinished = false
     }
 
-    fun handleBackPress(onExit: () -> Unit, onDiscard: () -> Unit) {
+    fun handleBackPress(onExit: () -> Unit, onDiscard: () -> Unit, onCloseSession: () -> Unit = {}) {
         when (appState) {
             AppState.GRAPH -> appState = AppState.RESULTS
             AppState.RESULTS -> onDiscard()
             AppState.SCANNING -> appState = AppState.SESSION_OPTIONS
             AppState.ATTENDANCE_SCANNING -> appState = AppState.SESSION_OPTIONS
-            AppState.SESSION_OPTIONS -> appState = AppState.CLASS_SELECTION
+            AppState.MANUAL_ATTENDANCE -> appState = AppState.SESSION_OPTIONS
+            AppState.SESSION_OPTIONS -> onCloseSession()
             AppState.CLASS_SELECTION -> onExit()
             AppState.CLASS_CREATION_CHOICE -> appState = AppState.CLASS_SELECTION
             AppState.CLASS_CREATION -> appState = AppState.CLASS_CREATION_CHOICE
-            AppState.CLASS_MANAGEMENT -> {
+            AppState.CLASS_EDITING -> {
                 if (editingClass != null) {
                     editingClass = null
                     if (activeSessionClass != null) {

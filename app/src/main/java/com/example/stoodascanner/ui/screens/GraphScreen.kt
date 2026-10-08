@@ -30,7 +30,7 @@ fun GraphScreenPreview() {
         GraphScreen(
             scannedCodes = Mocks.mockScannedCodes,
             selectedClass = Mocks.mockStudentClass,
-            onRestart = {}
+            onBackToSession = {}
         )
     }
 }
@@ -39,16 +39,27 @@ fun GraphScreenPreview() {
 fun GraphScreen(
     scannedCodes: List<String>,
     selectedClass: StudentClass?,
-    onRestart: () -> Unit
+    onBackToSession: () -> Unit
 ) {
     val decoder = remember { QRDecoder(selectedClass) }
     val counts = remember(scannedCodes.toList()) {
-        val map = mutableMapOf<String, Int>()
+        val map = mutableMapOf<String, Int>(
+            "A" to 0,
+            "B" to 0,
+            "C" to 0,
+            "D" to 0,
+            "E" to 0
+        )
         scannedCodes.forEachIndexed { index, code ->
             if (code.isNotEmpty()) {
                 val decoded = decoder.decode(code, index)
                 val type = decoded.split(" - ").lastOrNull() ?: "?"
-                map[type] = (map[type] ?: 0) + 1
+                
+                // Only count A, B, C, D, and E for the graph. 
+                // "?" (I don't know) is kept in the raw scannedCodes data but excluded visually.
+                if (type in listOf("A", "B", "C", "D", "E")) {
+                    map[type] = (map[type] ?: 0) + 1
+                }
             }
         }
         map.toSortedMap()
@@ -80,8 +91,8 @@ fun GraphScreen(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onRestart, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.restart_app))
+        Button(onClick = onBackToSession, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.back_to_session_options))
         }
     }
 }

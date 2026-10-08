@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.graphics.toColorInt
@@ -18,7 +19,11 @@ class ResultGraphView @JvmOverloads constructor(
     private var labelColor: Int = Color.DKGRAY
     private var baselineColor: Int = Color.BLACK
 
-    private val paintBar = Paint().apply { isAntiAlias = true }
+    private val paintBar = Paint().apply {
+        isAntiAlias = true
+    }
+    private val barPath = Path()
+
     private val paintText = Paint().apply {
         textSize = 40f
         textAlign = Paint.Align.CENTER
@@ -31,12 +36,18 @@ class ResultGraphView @JvmOverloads constructor(
     }
 
     private val barColors = listOf(
-        "#F19C5E".toColorInt(), // Graxinha Orange
-        "#705D4E".toColorInt(), // Graxinha Secondary
-        "#5E624C".toColorInt(), // Graxinha Tertiary
-        "#BB6D31".toColorInt(), // Graxinha Orange Dark
-        "#D7C2B1".toColorInt(), // Graxinha Secondary Light
-        "#E3E9CC".toColorInt()  // Graxinha Tertiary Light
+        "#FFADAD".toColorInt(), // Pastel Red
+        "#FFD6A5".toColorInt(), // Pastel Orange
+        "#FDFFB6".toColorInt(), // Pastel Yellow
+        "#CAFFBF".toColorInt(), // Pastel Green
+        "#9BF6FF".toColorInt(), // Pastel Cyan
+        "#A0C4FF".toColorInt(), // Pastel Blue
+        "#BDB2FF".toColorInt(), // Pastel Purple
+        "#FFC6FF".toColorInt(), // Pastel Pink
+        "#F0E6EF".toColorInt(), // Pastel Lilac
+        "#E5E5E5".toColorInt(), // Pastel Greyish
+        "#FFD1CC".toColorInt(), // Pastel Peach
+        "#C1FBA4".toColorInt()  // Pastel Lime
     )
 
     fun setData(counts: Map<String, Int>, textColor: Int, labelColor: Int, baselineColor: Int) {
@@ -67,15 +78,28 @@ class ResultGraphView @JvmOverloads constructor(
         data.entries.forEachIndexed { index, entry ->
             val barHeight = (entry.value.toFloat() / maxCount) * graphHeight
 
+            val left = currentX
+            val top = height - padding - barHeight
+            val right = currentX + barWidth
+            val bottom = height - padding
+
+            barPath.reset()
+            // Dynamically round corners based on bar width, capping at 20f
+            val cornerRadius = minOf(20f, barWidth / 4)
+            val radii = floatArrayOf(
+                cornerRadius, cornerRadius, // top-left
+                cornerRadius, cornerRadius, // top-right
+                0f, 0f,   // bottom-right
+                0f, 0f    // bottom-left
+            )
+            
+            // To prevent Path.addRoundRect issues when top >= bottom on zero-height bars
+            val actualTop = if (bottom - top < 1f) bottom - 1f else top
+            barPath.addRoundRect(left, actualTop, right, bottom, radii, Path.Direction.CW)
+
             // Draw Bar
             paintBar.color = barColors[index % barColors.size]
-            canvas.drawRect(
-                currentX,
-                height - padding - barHeight,
-                currentX + barWidth,
-                height - padding,
-                paintBar
-            )
+            canvas.drawPath(barPath, paintBar)
 
             // Draw Count Text
             canvas.drawText(

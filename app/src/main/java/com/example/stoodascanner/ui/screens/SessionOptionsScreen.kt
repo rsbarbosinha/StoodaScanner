@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.stoodascanner.R
+import com.example.stoodascanner.data.AppState
 import com.example.stoodascanner.data.StudentClass
 import com.example.stoodascanner.ui.Mocks
 import com.example.stoodascanner.ui.theme.StoodaScannerTheme
@@ -24,7 +25,9 @@ fun SessionOptionsScreen(
 
     SessionOptionsScreenContent(
         activeClass = activeClass,
+        attendanceTaken = viewModel.attendanceTaken,
         onAttendanceClick = { viewModel.startAttendanceCheck() },
+        onManualAttendanceClick = { viewModel.navigateTo(AppState.MANUAL_ATTENDANCE) },
         onQuizClick = { viewModel.startQuiz() },
         onFinishSessionClick = { viewModel.finishSession() }
     )
@@ -33,7 +36,9 @@ fun SessionOptionsScreen(
 @Composable
 fun SessionOptionsScreenContent(
     activeClass: StudentClass,
+    attendanceTaken: Boolean,
     onAttendanceClick: () -> Unit,
+    onManualAttendanceClick: () -> Unit,
     onQuizClick: () -> Unit,
     onFinishSessionClick: () -> Unit
 ) {
@@ -60,7 +65,23 @@ fun SessionOptionsScreenContent(
             modifier = Modifier.fillMaxWidth().height(60.dp),
             shape = MaterialTheme.shapes.medium
         ) {
-            Text(stringResource(R.string.attendance_check), fontSize = 18.sp)
+            Text(
+                text = if (attendanceTaken) stringResource(R.string.rescan_attendance) else stringResource(R.string.scan_attendance),
+                fontSize = 18.sp
+            )
+        }
+
+        if (attendanceTaken) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onManualAttendanceClick,
+                modifier = Modifier.fillMaxWidth().height(60.dp),
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+            ) {
+                Text(stringResource(R.string.review_edit_attendance), fontSize = 18.sp)
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -92,7 +113,9 @@ fun SessionOptionsScreenPreview() {
     StoodaScannerTheme {
         SessionOptionsScreenContent(
             activeClass = Mocks.mockStudentClass,
+            attendanceTaken = false,
             onAttendanceClick = {},
+            onManualAttendanceClick = {},
             onQuizClick = {},
             onFinishSessionClick = {}
         )

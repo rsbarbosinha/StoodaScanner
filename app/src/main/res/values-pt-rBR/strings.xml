@@ -65,4 +65,11 @@
     <string name="session_options">Opções da Seção</string>
     <string name="attendance_scanning">Escaneamento de Chamada</string>
     <string name="missing_students_count">Faltando: %1$d</string>
+    <string name="close_session_title">Fechar Sessão</string>
+    <string name="close_session_message">Tem certeza que deseja fechar a sessão atual?</string>
+    <string name="scan_attendance">Fazer Chamada</string>
+    <string name="rescan_attendance">Refazer Chamada</string>
+    <string name="review_edit_attendance">Revisar / Editar Chamada</string>
+    <string name="done">Concluído</string>
+    <string name="back_to_session_options">Voltar para Opções da Sessão</string>
 </resources>

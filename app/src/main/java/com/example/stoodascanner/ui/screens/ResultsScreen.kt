@@ -27,7 +27,7 @@ fun ResultsScreenPreview() {
             scannedCodes = Mocks.mockScannedCodes,
             selectedClass = Mocks.mockStudentClass,
             onShowGraph = {},
-            onRestart = {}
+            onBackToSession = {}
         )
     }
 }
@@ -37,7 +37,7 @@ fun ResultsScreen(
     scannedCodes: List<String>,
     selectedClass: StudentClass?,
     onShowGraph: () -> Unit,
-    onRestart: () -> Unit
+    onBackToSession: () -> Unit
 ) {
     val decoder = remember { QRDecoder(selectedClass) }
     val decodedList = remember(scannedCodes.toList()) { 
@@ -68,8 +68,8 @@ fun ResultsScreen(
             Text(stringResource(R.string.show_visual_graph))
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onRestart, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.restart_app))
+        Button(onClick = onBackToSession, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.back_to_session_options))
         }
     }
 }

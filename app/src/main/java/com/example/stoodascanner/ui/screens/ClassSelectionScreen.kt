@@ -62,7 +62,7 @@ fun ClassSelectionScreen(
         },
         onClassLongClick = {
             viewModel.editingClass = it
-            viewModel.navigateTo(AppState.CLASS_MANAGEMENT)
+            viewModel.navigateTo(AppState.CLASS_EDITING)
         },
         onAddClassClick = { viewModel.navigateTo(AppState.CLASS_CREATION_CHOICE) }
     )

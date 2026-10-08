@@ -120,25 +120,18 @@ fun ClassCreationScreenContent(
         Spacer(modifier = Modifier.height(8.dp))
         
         val colors = listOf(
-            Color(0xFFE53935), // Red
-            Color(0xFFD81B60), // Pink
-            Color(0xFF8E24AA), // Purple
-            Color(0xFF5E35B1), // Deep Purple
-            Color(0xFF3949AB), // Indigo
-            Color(0xFF1E88E5), // Blue
-            Color(0xFF039BE5), // Light Blue
-            Color(0xFF00ACC1), // Cyan
-            Color(0xFF00897B), // Teal
-            Color(0xFF43A047), // Green
-            Color(0xFF7CB342), // Light Green
-            Color(0xFFC0CA33), // Lime
-            Color(0xFFFDD835), // Yellow
-            Color(0xFFFFB300), // Amber
-            Color(0xFFFB8C00), // Orange
-            Color(0xFFF4511E), // Deep Orange
-            Color(0xFF6D4C41), // Brown
-            Color(0xFF757575), // Grey
-            Color(0xFF546E7A)  // Blue Grey
+            Color(0xFFFFADAD), // Pastel Red
+            Color(0xFFFFD6A5), // Pastel Orange
+            Color(0xFFFDFFB6), // Pastel Yellow
+            Color(0xFFCAFFBF), // Pastel Green
+            Color(0xFF9BF6FF), // Pastel Cyan
+            Color(0xFFA0C4FF), // Pastel Blue
+            Color(0xFFBDB2FF), // Pastel Purple
+            Color(0xFFFFC6FF), // Pastel Pink
+            Color(0xFFF0E6EF), // Pastel Lilac
+            Color(0xFFE5E5E5), // Pastel Greyish
+            Color(0xFFFFD1CC), // Pastel Peach
+            Color(0xFFC1FBA4)  // Pastel Lime
         )
 
         LazyRow(
